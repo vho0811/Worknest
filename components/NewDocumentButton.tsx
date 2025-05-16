@@ -15,7 +15,8 @@ function NewDocumentButton() {
     })
   }
   return (
-    <Button onClick={handleCreateNewDocument} disabled={isPending}  className="bg-white text-black hover:bg-gray-200 cursor-pointer flex w-full">
+    <Button onClick={handleCreateNewDocument} disabled={isPending}  
+    className="cursor-pointer w-full bg-gray-200 text-gray-900 font-semibold font-sans py-2 px-4 rounded-md hover:bg-gray-400 flex items-center justify-center space-x-2">
     {isPending ? "Creating..." : "New Document"}
         </Button>
   )

@@ -16,6 +16,7 @@ export async function createNewDocument(){
             role: "owner",
             createdAt: new Date(),
             roomId: docRef.id,
+            
         });
     }
     return {

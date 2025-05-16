@@ -22,10 +22,10 @@ export default function RootLayout({
         <Header/>
 
 
-        <div className="min-h-screen flex bg-gray-100">
+        <div className="min-h-screen flex bg-grey-200">
           {/* Sidebar */}
           <Sidebar/>
-          <div className = "flex-1 p-4  overflow-y-auto scrollbar-hide">
+          <div className = "flex-1 p-5  overflow-y-auto scrollbar-hide">
             {children}
           </div>
         </div>
