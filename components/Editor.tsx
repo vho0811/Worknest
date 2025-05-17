@@ -8,6 +8,7 @@ import {useCreateBlockNote} from "@blocknote/react"
 import "@blocknote/core/fonts/inter.css";
 import "@blocknote/shadcn/style.css"
 import stringToColor from "@/lib/stringToColor";
+import TranslateDocument from "./TranslateDocument";
 type EditorProps = {
     doc: Y.Doc;
     provider: any;
@@ -41,7 +42,7 @@ function BlockNote({doc, provider}: EditorProps) {
 
 function Editor() {
     const room = useRoom();
-    const [doc, setDoc] = useState<Y.Doc>(new Y.Doc());
+    const [doc, setDoc] = useState<Y.Doc>();
     const [provider, setProvider] = useState<LiveblocksYjsProvider>();
     
     useEffect(()=>{
@@ -54,15 +55,19 @@ function Editor() {
         yProvider?.destroy();
        }
     },[room])
+    if (!doc || !provider) return null;
     const style = `hover:text-white`
   return (
-    <div className ="max-w-6xl mx=auto">
-        <div className = "flex items-center gap-2 justify-end mb-10">
+    <div className ="flex-1 max-w-6xl mx-auto justify-between items-center mb-5 ">
+        {/* <TranslateDocument doc= {doc}/> */}
 
+        <div className = "flex items-center gap-5 justify-end mb-10">
+        
         </div>
         {/* TranslateDocument AI */}
         {/* ChatToDocument AI */}
         {/* BlockNote */}
+
         <BlockNote doc={doc} provider={provider} />
 
     </div>

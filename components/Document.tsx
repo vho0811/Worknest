@@ -9,6 +9,9 @@ import { doc } from "firebase/firestore"
 import Editor from "./Editor"
 import useOwner from "@/lib/useOwner"
 import DeleteDocument from "./DeleteDocument"
+import InviteUser from "./InviteUser"
+import ManageUsers from "./ManageUsers"
+import Avatars from "./Avatars"
 function Document({id}: {id:string}) {
   const [data] = useDocumentData(doc(db, 'documents', id));
   const [input, setInput] = useState("");
@@ -39,19 +42,25 @@ function Document({id}: {id:string}) {
             <Input 
             value = {input} onChange = {(e) => setInput(e.target.value)}
             />
-            <Button disabled={isUpdating} type="submit"> 
+            <Button className="cursor-pointer" disabled={isUpdating} type="submit"> 
                 {isUpdating ? "Updating..." : "Update"}
 
             </Button>
             {isOwner &&(
                 <>
+                <InviteUser/>
                 <DeleteDocument></DeleteDocument>
                 </>
             )
             }
         </form>
     </div>
-    <div></div>
+    <div className = "flex max-w-6xl mx-auto justify-between items-center mb-5">
+            <ManageUsers/>
+            <Avatars/>
+
+
+    </div>
     <Editor/>
     </div>
   )

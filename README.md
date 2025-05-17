@@ -1,24 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# WorkNest - Collaborative Document Editor
 
-## Getting Started
+A real-time collaborative document editor built with React, Next.js, TypeScript, and Liveblocks.
 
-First, run the development server:
+## 🛠️ Tech Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **React 18** - UI library for building interactive user interfaces
+  - Hooks (useState, useEffect, useCallback, useMemo)
+  - Server & Client Components
+  - Context API for state management
+- **Next.js 14** - React framework with App Router
+- **TypeScript** - Type-safe JavaScript
+- **Tailwind CSS** - Utility-first CSS framework
+- **Shadcn/ui** - UI component library
+- **Firebase** - Database, Authentication, Storage
+- **Liveblocks** - Real-time collaboration infrastructure
+- **Yjs** - CRDT for collaborative document editing
+- **BlockNote** - Rich text editor with collaboration
+- **Clerk** - Authentication
+  
+## ✨ Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- React-powered UI with optimized rendering
+- Server and client components for improved performance
+- Real-time collaborative document editing
+- User presence and cursor awareness
+- Document translation
+- Document management (create, delete)
+- User invitations
+- Responsive design
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📝 Getting Started
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Set up environment variables in `.env.local`
+4. Run development server: `npm run dev`
+
+## 📄 Environment Variables
+
+Create a `.env.local` file with the following:
+
+NEXT_PUBLIC_LIVEBLOCKS_ID=your_liveblocks_key
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_key
+CLERK_SECRET_KEY=your_clerk_secret
+NEXT_PUBLIC_BASE_URL=your_api_url
 
 ## Learn More
 

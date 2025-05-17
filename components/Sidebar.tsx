@@ -72,7 +72,6 @@ import SidebarOption from "./SidebarOption"
         ))}
         </>
       )}
-      </div>
 
       {/* Shared with me */}
       {groupedData.editor.length > 0 && (
@@ -83,6 +82,8 @@ import SidebarOption from "./SidebarOption"
         ))}
         </>
       )}
+      </div>
+
     </>
   );
   return (
