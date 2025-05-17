@@ -14,11 +14,11 @@ function NewDocumentButton() {
     startTransition(async ()=>{
       try {
         const {docId} = await createNewDocument();
-        router.push(`/document/${docId}`);
+        router.push(`/doc/${docId}`);
       } catch (error) {
-        if (error instanceof Error && error.message === "Unauthorized") {
+        
            toast.error("Please sign in to create a new document");
-        }
+        
       }
     })
   }

@@ -28,7 +28,7 @@ function BlockNote({doc, provider}: EditorProps) {
         }
     })
   return (
-    <div className = "relative max-w-6xl mx-auto bg-gray-200">
+    <div className = "relative max-w-6xl mx-auto bg-gray-800">
     <BlockNoteView
     editor={editor}
     editable={true}

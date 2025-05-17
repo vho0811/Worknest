@@ -30,7 +30,13 @@ export default function RootLayout({
             {children}
           </div>
         </div>
-       <Toaster position="top-center" />
+       <Toaster 
+          position="top-center" 
+          expand={true}
+          richColors
+          closeButton
+          theme="light"
+        />
       </body>
     </html>
     </ClerkProvider>

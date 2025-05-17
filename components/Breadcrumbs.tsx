@@ -29,9 +29,9 @@ function Breadcrumbs(){
                     <BreadcrumbSeparator className="text-sm text-gray-100 "/>
                     <BreadcrumbItem key={segment}>
                         {isLast ? (
-                            <BreadcrumbPage className="text-sm text-gray-100 hover:text-gray-300">{segment}</BreadcrumbPage>
+                            <BreadcrumbPage className="text-sm text-gray-100 hover:text-gray-300">{segment}   </BreadcrumbPage>
                         ): (
-                            <BreadcrumbLink className="text-sm text-gray-100 hover:text-gray-300" href={`/${segments.slice(0, index + 1).join("/")}`}>
+                            <BreadcrumbLink className="text-sm text-gray-100 hover:text-gray-300" >
                                 {segment}
                             </BreadcrumbLink>
                         )}
