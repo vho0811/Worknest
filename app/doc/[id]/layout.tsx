@@ -1,11 +1,18 @@
-import { auth } from "@clerk/nextjs/server"
-import RoomProvider from "@/components/RoomProvider"
+// app/doc/[id]/layout.tsx
 
-function DocLayout({children, params: {id}}: {children: React.ReactNode; params: {id:string}}) {
-    auth.protect()
-  return (
-    <RoomProvider roomId={id}>{children}</RoomProvider>
-  )
+'use client';
+import { use } from "react";
+import RoomProvider from "@/components/RoomProvider";
+import { ReactNode } from "react";
+
+export default function DocLayout({
+  children,
+  params,
+}: {
+  children: ReactNode;
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = use(params);
+
+  return <RoomProvider roomId={id}>{children}</RoomProvider>;
 }
-
-export default DocLayout
