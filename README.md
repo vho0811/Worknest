@@ -2,6 +2,9 @@
 
 A real-time collaborative document editor built with React, Next.js, TypeScript, and Liveblocks.
 
+![WorkNest Screenshot](./worknest.png)
+*WorkNest - A modern collaborative document editor with real-time features*
+
 ## 🛠️ Tech Stack
 
 - **React 18** - UI library for building interactive user interfaces
