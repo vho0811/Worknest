@@ -67,7 +67,7 @@ export default function AIWebsiteGenerator() {
   const [analysis, setAnalysis] = useState<{
     suggestedStyle: string;
     suggestedColorScheme: string;
-    contentAnalysis: string;
+    contentAnalysis: string | object;
   } | null>(null);
 
   const pathname = usePathname();
@@ -190,23 +190,93 @@ export default function AIWebsiteGenerator() {
   };
 
   const styleOptions = [
-    { value: 'modern', label: 'Modern', icon: '✨', desc: 'Sleek, contemporary design' },
-    { value: 'minimal', label: 'Minimal', icon: '🎯', desc: 'Clean, simple layout' },
-    { value: 'professional', label: 'Professional', icon: '💼', desc: 'Business-oriented design' },
-    { value: 'creative', label: 'Creative', icon: '🎨', desc: 'Artistic, unique design' },
-    { value: 'blog', label: 'Blog', icon: '📝', desc: 'Content-focused layout' },
+    { 
+      value: 'modern', 
+      label: 'Modern', 
+      icon: '✨', 
+      desc: 'Contemporary design with clean lines, bold typography, and cutting-edge layouts' 
+    },
+    { 
+      value: 'minimal', 
+      label: 'Minimal', 
+      icon: '⚡', 
+      desc: 'Stripped-down elegance focusing on content with maximum visual impact' 
+    },
+    { 
+      value: 'professional', 
+      label: 'Professional', 
+      icon: '💼', 
+      desc: 'Corporate-grade design that builds trust and credibility' 
+    },
+    { 
+      value: 'creative', 
+      label: 'Creative', 
+      icon: '🎨', 
+      desc: 'Bold, artistic design that breaks conventions and inspires' 
+    },
+    { 
+      value: 'blog', 
+      label: 'Editorial', 
+      icon: '📖', 
+      desc: 'Magazine-quality layouts optimized for reading and engagement' 
+    },
   ];
 
   const colorOptions = [
-    { value: 'blue', label: 'Ocean Blue', color: 'bg-blue-500', desc: 'Professional and trustworthy' },
-    { value: 'purple', label: 'Royal Purple', color: 'bg-purple-500', desc: 'Creative and modern' },
-    { value: 'green', label: 'Nature Green', color: 'bg-green-500', desc: 'Fresh and organic' },
-    { value: 'orange', label: 'Sunset Orange', color: 'bg-orange-500', desc: 'Energetic and warm' },
-    { value: 'dark', label: 'Dark Theme', color: 'bg-gray-800', desc: 'Sleek and sophisticated' },
-    { value: 'monochrome', label: 'Monochrome', color: 'bg-gray-400', desc: 'Timeless black & white' },
-    { value: 'sunset', label: 'Sunset Gradient', color: 'bg-gradient-to-r from-amber-500 to-orange-500', desc: 'Warm and inviting' },
-    { value: 'ocean', label: 'Ocean Breeze', color: 'bg-cyan-500', desc: 'Calm and refreshing' },
-    { value: 'forest', label: 'Forest Green', color: 'bg-emerald-600', desc: 'Natural and sustainable' },
+    { 
+      value: 'blue', 
+      label: 'Corporate Blue', 
+      color: 'bg-blue-600', 
+      desc: 'Trust, professionalism, technology' 
+    },
+    { 
+      value: 'purple', 
+      label: 'Innovation Purple', 
+      color: 'bg-purple-600', 
+      desc: 'Creativity, luxury, forward-thinking' 
+    },
+    { 
+      value: 'green', 
+      label: 'Growth Green', 
+      color: 'bg-emerald-600', 
+      desc: 'Sustainability, health, prosperity' 
+    },
+    { 
+      value: 'orange', 
+      label: 'Energy Orange', 
+      color: 'bg-orange-500', 
+      desc: 'Enthusiasm, warmth, confidence' 
+    },
+    { 
+      value: 'teal', 
+      label: 'Modern Teal', 
+      color: 'bg-teal-600', 
+      desc: 'Balance, sophistication, tech' 
+    },
+    { 
+      value: 'rose', 
+      label: 'Elegant Rose', 
+      color: 'bg-rose-500', 
+      desc: 'Beauty, lifestyle, refinement' 
+    },
+    { 
+      value: 'amber', 
+      label: 'Warm Amber', 
+      color: 'bg-amber-500', 
+      desc: 'Optimism, friendliness, warmth' 
+    },
+    { 
+      value: 'slate', 
+      label: 'Premium Slate', 
+      color: 'bg-slate-700', 
+      desc: 'Luxury, timeless, sophisticated' 
+    },
+    { 
+      value: 'gradient', 
+      label: 'Dynamic Gradient', 
+      color: 'bg-gradient-to-r from-violet-500 to-purple-500', 
+      desc: 'Modern, energetic, eye-catching' 
+    },
   ];
 
 
@@ -354,7 +424,12 @@ export default function AIWebsiteGenerator() {
             
             {analysis && (
               <div className="space-y-3">
-                <p className="text-sm text-blue-800 dark:text-blue-200">{analysis.contentAnalysis}</p>
+                <p className="text-sm text-blue-800 dark:text-blue-200">
+                  {typeof analysis.contentAnalysis === 'string' 
+                    ? analysis.contentAnalysis 
+                    : JSON.stringify(analysis.contentAnalysis, null, 2)
+                  }
+                </p>
                 <div className="flex flex-wrap gap-2">
                   <Badge variant="secondary" className="bg-blue-100 text-blue-800">
                     Suggested: {analysis.suggestedStyle}

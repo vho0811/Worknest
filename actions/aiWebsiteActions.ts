@@ -14,11 +14,11 @@ export async function generateAIWebsiteFromDocument(
     throw new Error("Unauthorized");
   }
 
-  // Validate OpenAI API key
-  if (!process.env.OPENAI_API_KEY) {
+  // Validate Anthropic API key
+  if (!process.env.ANTHROPIC_API_KEY) {
     return { 
       success: false, 
-      error: "OpenAI API key is not configured. Please add OPENAI_API_KEY to your environment variables." 
+      error: "Anthropic API key is not configured. Please add ANTHROPIC_API_KEY to your environment variables." 
     };
   }
 
@@ -74,10 +74,10 @@ export async function analyzeDocumentContent(docId: string, documentContent?: Do
     throw new Error("Unauthorized");
   }
 
-  if (!process.env.OPENAI_API_KEY) {
+  if (!process.env.ANTHROPIC_API_KEY) {
     return { 
       success: false, 
-      error: "OpenAI API key is not configured" 
+      error: "Anthropic API key is not configured" 
     };
   }
 
