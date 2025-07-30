@@ -1,4 +1,5 @@
-import { ArrowLeftCircle, Sparkles, FileText, Globe } from "lucide-react";
+import { Sparkles, FileText, Globe } from "lucide-react";
+import Image from "next/image";
 
 export default function Home() {
   return (
@@ -6,7 +7,13 @@ export default function Home() {
       {/* Hero Section */}
       <div className="text-center max-w-2xl">
         <div className="flex items-center justify-center space-x-3 mb-6">
-          <ArrowLeftCircle className="h-10 w-10 text-blue-500" />
+          <Image 
+            src="/logo.png" 
+            alt="WorkNest Logo" 
+            width={40} 
+            height={40} 
+            className="rounded-lg"
+          />
           <h1 className="text-3xl font-bold text-gray-800">Welcome to WorkNest</h1>
         </div>
         
