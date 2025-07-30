@@ -198,11 +198,15 @@ export default function AIWebsiteGenerator() {
   ];
 
   const colorOptions = [
-    { value: 'blue', label: 'Ocean Blue', color: 'bg-blue-500' },
-    { value: 'purple', label: 'Royal Purple', color: 'bg-purple-500' },
-    { value: 'green', label: 'Nature Green', color: 'bg-green-500' },
-    { value: 'orange', label: 'Sunset Orange', color: 'bg-orange-500' },
-    { value: 'dark', label: 'Dark Theme', color: 'bg-gray-800' },
+    { value: 'blue', label: 'Ocean Blue', color: 'bg-blue-500', desc: 'Professional and trustworthy' },
+    { value: 'purple', label: 'Royal Purple', color: 'bg-purple-500', desc: 'Creative and modern' },
+    { value: 'green', label: 'Nature Green', color: 'bg-green-500', desc: 'Fresh and organic' },
+    { value: 'orange', label: 'Sunset Orange', color: 'bg-orange-500', desc: 'Energetic and warm' },
+    { value: 'dark', label: 'Dark Theme', color: 'bg-gray-800', desc: 'Sleek and sophisticated' },
+    { value: 'monochrome', label: 'Monochrome', color: 'bg-gray-400', desc: 'Timeless black & white' },
+    { value: 'sunset', label: 'Sunset Gradient', color: 'bg-gradient-to-r from-amber-500 to-orange-500', desc: 'Warm and inviting' },
+    { value: 'ocean', label: 'Ocean Breeze', color: 'bg-cyan-500', desc: 'Calm and refreshing' },
+    { value: 'forest', label: 'Forest Green', color: 'bg-emerald-600', desc: 'Natural and sustainable' },
   ];
 
 
@@ -413,8 +417,9 @@ export default function AIWebsiteGenerator() {
                       : 'border-gray-200 hover:border-gray-300'
                   }`}
                 >
-                  <div className={`w-8 h-8 ${option.color} rounded-lg mb-2`}></div>
-                  <div className="font-medium">{option.label}</div>
+                  <div className={`w-8 h-8 ${option.color} rounded-lg mb-2 shadow-sm`}></div>
+                  <div className="font-medium text-sm">{option.label}</div>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">{option.desc}</p>
                 </button>
               ))}
             </div>

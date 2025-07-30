@@ -13,7 +13,7 @@ export interface DocumentData {
 
 export interface AIWebsiteSettings {
   style: 'modern' | 'minimal' | 'professional' | 'creative' | 'blog';
-  colorScheme: 'blue' | 'purple' | 'green' | 'orange' | 'dark' | 'custom';
+  colorScheme: 'blue' | 'purple' | 'green' | 'orange' | 'dark' | 'monochrome' | 'sunset' | 'ocean' | 'forest';
   includeNavigation?: boolean;
   includeTOC?: boolean;
   customInstructions?: string;
@@ -109,164 +109,169 @@ export async function generateAIWebsite(
     contentString = contentString.substring(0, maxContentLength) + '...';
   }
   
-  // Create industry-standard focused prompt
+  // Helper functions for cleaner prompt organization
+  function getStyleDefinition(style: string): string {
+    const definitions = {
+      modern: `
+• Clean, contemporary design with subtle animations
+• Glassmorphism effects and gradient backgrounds  
+• Rounded corners (8px-16px), soft shadows
+• Card-based layouts with ample whitespace
+• Smooth hover transitions and micro-interactions`,
+
+      minimal: `
+• Extreme simplicity with maximum impact
+• Monochromatic or limited color palette
+• Abundant whitespace and clean typography
+• No decorative elements or unnecessary styling
+• Focus on content hierarchy and readability`,
+
+      professional: `
+• Corporate and trustworthy appearance
+• Conservative color palette (blues, grays, whites)
+• Structured layouts with clear sections
+• Traditional typography and formal styling
+• Business-appropriate design elements`,
+
+      creative: `
+• Bold, artistic, and expressive design
+• Vibrant colors and unique compositions
+• Asymmetrical layouts and creative typography
+• Eye-catching visuals and dynamic elements
+• Artistic freedom while maintaining usability`,
+
+      blog: `
+• Content-first design optimized for reading
+• Typography-focused with excellent readability
+• Article-style layouts with proper spacing
+• Sidebar or minimal navigation
+• Reading-friendly color schemes and fonts`
+    };
+
+    return definitions[style as keyof typeof definitions] || definitions.modern;
+  }
+
+  function getColorDefinition(colorScheme: string): string {
+    const definitions = {
+      blue: `
+• Primary: #2563eb (blue-600), #3b82f6 (blue-500)
+• Secondary: #dbeafe (blue-100), #bfdbfe (blue-200)  
+• Accent: #1d4ed8 (blue-700), #1e40af (blue-800)
+• Text: #1e293b on light, #f8fafc on dark
+• Background: #ffffff, #f8fafc (light gray)`,
+
+      purple: `
+• Primary: #7c3aed (violet-600), #8b5cf6 (violet-500)
+• Secondary: #ede9fe (violet-100), #ddd6fe (violet-200)
+• Accent: #6d28d9 (violet-700), #5b21b6 (violet-800) 
+• Text: #1e293b on light, #f8fafc on dark
+• Background: #ffffff, #faf5ff (purple tint)`,
+
+      green: `
+• Primary: #059669 (emerald-600), #10b981 (emerald-500)
+• Secondary: #d1fae5 (emerald-100), #a7f3d0 (emerald-200)
+• Accent: #047857 (emerald-700), #065f46 (emerald-800)
+• Text: #1e293b on light, #f8fafc on dark  
+• Background: #ffffff, #f0fdf4 (green tint)`,
+
+      orange: `
+• Primary: #ea580c (orange-600), #f97316 (orange-500)
+• Secondary: #fed7aa (orange-200), #fdba74 (orange-300)
+• Accent: #c2410c (orange-700), #9a3412 (orange-800)
+• Text: #1e293b on light, #f8fafc on dark
+• Background: #ffffff, #fff7ed (orange tint)`,
+
+      dark: `
+• Primary: #374151 (gray-700), #4b5563 (gray-600)
+• Secondary: #1f2937 (gray-800), #111827 (gray-900)
+• Accent: #6366f1 (indigo-500), #8b5cf6 (violet-500)
+• Text: #f9fafb on dark, #1f2937 on light
+• Background: #111827, #1f2937 (dark grays)`,
+
+      monochrome: `
+• Primary: #000000, #ffffff
+• Secondary: #f3f4f6 (gray-100), #e5e7eb (gray-200)
+• Accent: #6b7280 (gray-500), #374151 (gray-700)
+• Text: #000000 on light, #ffffff on dark
+• Background: #ffffff, #f9fafb (near white)`,
+
+      sunset: `
+• Primary: #f59e0b (amber-500), #f97316 (orange-500)
+• Secondary: #fef3c7 (amber-100), #fed7aa (orange-200)
+• Accent: #dc2626 (red-600), #be185d (pink-700)
+• Text: #1e293b on light, #f8fafc on dark
+• Background: #ffffff, #fffbeb (warm tint)`,
+
+      ocean: `
+• Primary: #0891b2 (cyan-600), #06b6d4 (cyan-500)
+• Secondary: #cffafe (cyan-100), #a5f3fc (cyan-200)
+• Accent: #0e7490 (cyan-700), #155e75 (cyan-800)
+• Text: #1e293b on light, #f8fafc on dark
+• Background: #ffffff, #f0fdff (cyan tint)`,
+
+      forest: `
+• Primary: #16a34a (green-600), #22c55e (green-500)
+• Secondary: #dcfce7 (green-100), #bbf7d0 (green-200)
+• Accent: #15803d (green-700), #166534 (green-800)
+• Text: #1e293b on light, #f8fafc on dark
+• Background: #ffffff, #f0fdf4 (green tint)`
+    };
+
+    return definitions[colorScheme as keyof typeof definitions] || definitions.blue;
+  }
+
+  // Create FOCUSED industry-standard prompt that prioritizes fundamentals
   const prompt = `
-Create a clean, professional website from this Liveblocks document content following industry standards.
+Create a modern, professional website from this document content. Return ONLY complete HTML with embedded CSS.
 
-${settings.includeNavigation ? 'CRITICAL: USER SELECTED NAVIGATION MENU - YOU MUST CREATE A FIXED TOP NAVIGATION BAR!' : ''}
+CONTENT: ${contentString}
 
-Return ONLY the complete HTML document with embedded CSS - NO explanations, NO markdown, NO code blocks.
+=== CORE REQUIREMENTS ===
+• Start with <!DOCTYPE html> and include ALL CSS in <style> tag
+• Use semantic HTML5 structure (header, main, section, article, footer)
+• Ensure WCAG AA accessibility compliance (contrast ratio ≥ 4.5:1)
+• Keep IMAGE_PLACEHOLDER and VIDEO_PLACEHOLDER exactly as written
+• Mobile-first responsive design with fluid typography
 
-Start with <!DOCTYPE html> and include ALL CSS inline in a <style> tag.
+=== SELECTED STYLE: ${settings.style.toUpperCase()} ===
+${getStyleDefinition(settings.style)}
 
-**CONTENT:** ${contentString}
+=== COLOR SCHEME: ${settings.colorScheme.toUpperCase()} ===
+${getColorDefinition(settings.colorScheme)}
 
-**INDUSTRY STANDARDS TO FOLLOW:**
+=== TYPOGRAPHY SYSTEM ===
+• Font Stack: Inter, system-ui, -apple-system, sans-serif
+• Scale: h1(2.5rem), h2(2rem), h3(1.5rem), h4(1.25rem), body(1rem)
+• Line Height: 1.6 for body, 1.2 for headings
+• Font Weights: 400(normal), 500(medium), 600(semibold), 700(bold)
 
-**1. TYPOGRAPHY:**
-- Font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif
-- Sizes: h1 (2rem), h2 (1.5rem), h3 (1.25rem), body (1rem)
-- Line-height: 1.5 for all text
-- **CRITICAL TEXT CONTRAST RULE: Text color MUST be significantly different from background color for readability!**
-- **Light backgrounds:** Use dark text (#000000, #1a202c, #2d3748, #4a5568)
-- **Dark backgrounds:** Use light text (#ffffff, #f7fafc, #edf2f7, #e2e8f0)
-- **NEVER use similar colors for text and background!**
-- **Test contrast:** Text should be clearly visible and readable
+=== LAYOUT SYSTEM ===
+• Container: max-width: 1280px, padding: clamp(1rem, 5vw, 2rem)
+• Spacing: 4px base unit, multiples of 4 (8, 12, 16, 24, 32, 48, 64)
+• Grid: CSS Grid for layouts, Flexbox for components
+• Breakpoints: 640px(sm), 768px(md), 1024px(lg), 1280px(xl)
 
-**2. LAYOUT:**
-- Container: max-width: 1200px, margin: 0 auto, padding: 1rem
-- Sections: margin-bottom: 2rem, padding: 1rem
-- Headings: margin-bottom: 0.5rem
-- Paragraphs: margin-bottom: 1rem
+=== MODERN COMPONENTS ===
+• Buttons: rounded-lg, shadow-sm, hover:shadow-md, transition-all
+• Cards: bg-white, shadow-lg, rounded-xl, border border-gray-100
+• Sections: py-16 md:py-24, proper content hierarchy
+• Images: object-cover, rounded corners, proper aspect ratios
 
-**3. COLORS & MODERN STYLING:**
-- **FOUNDATION: CRITICAL TEXT CONTRAST - Text must be clearly visible!**
-- **Light backgrounds:** Use dark text (#000000, #1a202c, #2d3748, #4a5568)
-- **Dark backgrounds:** Use light text (#ffffff, #f7fafc, #edf2f7, #e2e8f0)
-- **NEVER use similar colors for text and background!**
-- Backgrounds: Use gradients for visual appeal (linear-gradient)
-- Cards: White/light backgrounds with subtle shadows
-- Buttons: Gradient backgrounds with hover effects
-- Accents: Modern colors (#667eea, #764ba2, #f093fb, #f5576c)
-- **EXAMPLES:**
-  - ✅ Good: Dark text (#2d3748) on light background (#ffffff)
-  - ✅ Good: Light text (#ffffff) on dark background (#1a202c)
-  - ❌ Bad: Light gray text (#e2e8f0) on light background (#f7fafc)
-  - ❌ Bad: Dark gray text (#4a5568) on dark background (#2d3748)
-
-**4. MODERN UI COMPONENTS:**
-- **Buttons:** background: linear-gradient(135deg, #667eea, #764ba2), color: white, padding: 12px 24px, border-radius: 8px, border: none, cursor: pointer, transition: 0.3s ease, hover: transform: translateY(-2px), box-shadow: 0 4px 12px rgba(0,0,0,0.15)
-- **Cards:** background: white, border-radius: 12px, box-shadow: 0 4px 20px rgba(0,0,0,0.1), padding: 2rem, margin: 1rem 0
-- **Lists:** Remove default bullets, add custom styled bullet holders with background colors, padding, and icons
-- **Sections:** Add subtle background gradients or colors for visual separation
-
-**5. RESPONSIVE:**
-- Mobile-first approach
-- Breakpoints: 768px for tablet, 1024px for desktop
-- Touch-friendly buttons (min 44px)
-
-**6. NAVIGATION:** ${settings.includeNavigation ? `
-CRITICAL: YOU MUST CREATE A NAVIGATION BAR! USER SELECTED NAVIGATION MENU!
-
-NAVIGATION REQUIREMENTS:
-- CREATE a fixed top navigation bar at the very top of the page
-- Position: fixed, top: 0, left: 0, right: 0, z-index: 1000
-- Background: rgba(255, 255, 255, 0.95) with backdrop-filter: blur(10px)
-- Height: 70px, padding: 0 2rem
-- Display: flex, justify-content: space-between, align-items: center
-- Logo/Brand: Come up with a brand name based on the document content
-- Navigation Links: Right side with these items: ${settings.navigationItems?.join(', ') || 'Home, About, Contact'}
-- Link styling: padding: 8px 16px, border-radius: 6px, color: #2d3748, text-decoration: none
-- Hover effects: background: rgba(102, 126, 234, 0.1), color: #667eea
-- Create anchor links: href="#home", href="#about", etc. for smooth scrolling
-- Add margin-top: 70px to body content to account for fixed nav
-- MUST INCLUDE THIS NAVIGATION BAR IN THE HTML!
-` : 'No navigation menu needed.'}
-
-**CRITICAL: FOLLOW SELECTED STYLE EXACTLY!**
-
-**SELECTED STYLE:** ${settings.style} - YOU MUST FOLLOW THIS STYLE PRECISELY!
-
-**STYLE REQUIREMENTS:**
-${settings.style === 'modern' ? `
-- MODERN STYLE: Use glassmorphism, gradients, rounded corners, subtle shadows
-- Colors: Clean whites, soft grays, modern accent colors
-- Typography: Clean sans-serif, good spacing
-- Layout: Card-based, generous whitespace, modern grid layouts
-` : ''}${settings.style === 'minimal' ? `
-- MINIMAL STYLE: Clean, simple, lots of whitespace, minimal colors
-- Colors: Black, white, one accent color maximum
-- Typography: Simple fonts, minimal text, clean hierarchy
-- Layout: Sparse, focused, no unnecessary elements
-` : ''}${settings.style === 'professional' ? `
-- PROFESSIONAL STYLE: Business-appropriate, trustworthy, corporate
-- Colors: Navy blues, grays, whites, conservative palette
-- Typography: Traditional, readable, professional fonts
-- Layout: Structured, organized, formal sections
-` : ''}${settings.style === 'creative' ? `
-- CREATIVE STYLE: Artistic, unique, expressive, bold
-- Colors: Vibrant, creative combinations, artistic palette
-- Typography: Interesting fonts, creative layouts
-- Layout: Asymmetrical, artistic, creative compositions
-` : ''}${settings.style === 'blog' ? `
-- BLOG STYLE: Content-focused, readable, article-like
-- Colors: Easy on eyes, reading-friendly palette
-- Typography: Excellent readability, article formatting
-- Layout: Content-first, readable columns, blog structure
+${settings.includeNavigation ? `
+=== NAVIGATION REQUIREMENTS ===
+• Fixed header: backdrop-blur-sm, bg-white/80, shadow-sm
+• Height: 4rem, z-index: 50
+• Logo: text-xl font-bold
+• Links: ${settings.navigationItems?.join(', ') || 'Home, About, Services, Contact'}
+• Mobile: hamburger menu with smooth transitions
+• Add padding-top to body content to offset fixed header
 ` : ''}
 
-**SELECTED COLOR SCHEME:** ${settings.colorScheme} - STICK TO THIS COLOR PALETTE!
+${settings.customInstructions ? `=== CUSTOM REQUIREMENTS ===
+${settings.customInstructions}` : ''}
 
-**COLOR REQUIREMENTS:**
-${settings.colorScheme === 'blue' ? `
-- PRIMARY: Blues (#2563eb, #3b82f6, #60a5fa)
-- SECONDARY: Light blues and whites
-- ACCENT: Darker blues for contrast
-` : ''}${settings.colorScheme === 'purple' ? `
-- PRIMARY: Purples (#7c3aed, #8b5cf6, #a78bfa)
-- SECONDARY: Light purples and whites
-- ACCENT: Darker purples for contrast
-` : ''}${settings.colorScheme === 'green' ? `
-- PRIMARY: Greens (#059669, #10b981, #34d399)
-- SECONDARY: Light greens and whites
-- ACCENT: Darker greens for contrast
-` : ''}${settings.colorScheme === 'orange' ? `
-- PRIMARY: Oranges (#ea580c, #f97316, #fb923c)
-- SECONDARY: Light oranges and whites
-- ACCENT: Darker oranges for contrast
-` : ''}${settings.colorScheme === 'dark' ? `
-- PRIMARY: Dark grays and blacks (#1f2937, #374151, #4b5563)
-- SECONDARY: Medium grays
-- ACCENT: White text, bright accent colors
-` : ''}
-
-**MODERN STYLING REQUIREMENTS:**
-
-**Buttons:** Create gradient buttons with hover effects - background: linear-gradient(135deg, #667eea, #764ba2), padding: 12px 24px, border-radius: 8px, hover: transform: translateY(-2px) and box-shadow
-
-**Cards:** Use white backgrounds with subtle shadows - border-radius: 12px, box-shadow: 0 4px 20px rgba(0,0,0,0.1), padding: 2rem, hover effects
-
-**Lists:** Style with custom bullet holders - remove default bullets, add background colors, use checkmarks or icons, padding: 12px 16px, border-left: 4px solid accent color
-
-**Sections:** Add visual separation with subtle backgrounds or gradients, proper spacing, rounded corners
-
-**CRITICAL RULES:**
-- Keep "IMAGE_PLACEHOLDER" and "VIDEO_PLACEHOLDER" exactly as written
-- Industry standards first, then modern styling
-- **CRITICAL TEXT CONTRAST: Text color MUST be significantly different from background color!**
-- **Light backgrounds = Dark text (#000000, #1a202c, #2d3748)**
-- **Dark backgrounds = Light text (#ffffff, #f7fafc, #edf2f7)**
-- **NEVER use similar colors for text and background!**
-- High contrast text, beautiful modern elements
-- Test readability, then enhance with style
-- FOLLOW THE SELECTED STYLE (${settings.style}) AND COLOR SCHEME (${settings.colorScheme}) EXACTLY!
-- DO NOT MIX STYLES OR CHANGE THE USER'S SELECTED THEME!
-
-${settings.customInstructions ? `**CUSTOM:** ${settings.customInstructions}` : ''}
-
-**FINAL REMINDER: STICK TO ${settings.style.toUpperCase()} STYLE WITH ${settings.colorScheme.toUpperCase()} COLORS!**
-
-Return ONLY the HTML document.
+=== OUTPUT FORMAT ===
+Return complete HTML document starting with <!DOCTYPE html>. No explanations or markdown.
 `;
 
   // Check prompt length and truncate if too long
@@ -287,11 +292,11 @@ Return ONLY the HTML document.
   
   try {
     const response = await openai.chat.completions.create({
-      model: "gpt-4-turbo-preview",
+      model: "gpt-4-turbo",
       messages: [
         {
           role: "system",
-          content: "You are a SENIOR WEB DEVELOPER who follows industry standards while creating modern, beautiful websites. CRITICAL: ENSURE TEXT IS ALWAYS VISIBLE - NO WHITE TEXT ON WHITE BACKGROUNDS OR BLACK TEXT ON BLACK BACKGROUNDS! STYLE CONSISTENCY RULE: YOU MUST FOLLOW THE SELECTED STYLE AND COLOR SCHEME EXACTLY - DO NOT DEVIATE FROM USER'S CHOICES! INDUSTRY STANDARDS FIRST: 1) Clean, semantic HTML structure, 2) Accessible color contrast (WCAG AA), 3) Responsive design, 4) Standard typography hierarchy, 5) Consistent spacing. THEN ADD MODERN ELEMENTS: Styled buttons with hover effects, card layouts, smooth transitions, gradient backgrounds, subtle shadows, rounded corners, modern colors. NAVIGATION RULE: IF USER REQUESTS NAVIGATION, YOU MUST CREATE A FIXED TOP NAVIGATION BAR - DO NOT IGNORE THIS REQUIREMENT! FUNDAMENTAL RULES: Ensure perfect readability first, then enhance with modern styling. Use high contrast text. Create beautiful buttons with hover states. Style lists with modern bullet holders. Add cards for content sections. Use smooth transitions (0.3s ease). CRITICAL TEXT CONTRAST RULE: Text color MUST be significantly different from background color - NEVER use similar colors! Light backgrounds need dark text (#000000, #1a202c, #2d3748), dark backgrounds need light text (#ffffff, #f7fafc, #edf2f7). NEVER USE WHITE TEXT ON WHITE BACKGROUND OR BLACK TEXT ON BLACK BACKGROUND! CRITICAL: Return ONLY the complete HTML document with embedded CSS - NO explanations, NO markdown, NO code blocks. Start with <!DOCTYPE html> and include ALL CSS inline in a <style> tag. Keep IMAGE_PLACEHOLDER and VIDEO_PLACEHOLDER exactly as written - DO NOT convert them to HTML tags. TYPOGRAPHY: Use system fonts: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif. Ensure readability first, then style beautifully. MODERN STYLING: Buttons with gradients, hover effects, shadows. Cards with subtle backgrounds. Beautiful bullet points. Smooth animations. ALWAYS MATCH THE SELECTED STYLE AND COLORS!"
+          content: "You are a senior frontend developer who creates modern, accessible websites following industry standards. CORE PRINCIPLES: 1) Semantic HTML5 structure 2) WCAG AA accessibility compliance 3) Mobile-first responsive design 4) Modern CSS best practices 5) Optimized performance. DESIGN APPROACH: Clean, professional layouts with proper typography hierarchy, consistent spacing, and excellent color contrast. Use contemporary design patterns like card layouts, subtle shadows, smooth transitions, and grid-based structures. CRITICAL: Always ensure perfect text readability and follow the specified style/color scheme exactly. Return only complete HTML with embedded CSS."
         },
         {
           role: "user",
