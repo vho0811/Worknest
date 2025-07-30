@@ -239,6 +239,7 @@ OUTPUT REQUIREMENTS:
 - NO explanations, markdown formatting, or code blocks
 - Self-contained file that works immediately when opened
 - Include proper meta tags, responsive design, and accessibility features
+- PRESERVE ALL IMAGES: When you see image markers, create <img> tags with src="IMAGE_PLACEHOLDER"
 
 TECHNICAL STANDARDS:
 - Semantic HTML5 structure
@@ -271,7 +272,34 @@ Analyze the provided content and automatically:
 - Organize information in logical flow
 - Create navigation based on content structure
 - Add relevant icons and visual elements
-- Suggest and implement appropriate imagery placeholders
+- **CRITICAL**: Convert ALL image markers ([IMAGE:...], IMAGE_PLACEHOLDER) into proper <img> tags
+
+IMAGE HANDLING RULES:
+1. When you see [IMAGE: something] → create: <img src="IMAGE_PLACEHOLDER" alt="Document Image">
+2. When you see IMAGE_PLACEHOLDER → create: <img src="IMAGE_PLACEHOLDER" alt="Document Image">  
+3. NEVER ignore image markers - they represent real user images
+4. Always include proper responsive styling for images
+5. Place images logically within the content flow
+
+🎨 ADVANCED IMAGE PLACEMENT & STYLING:
+- STRATEGIC PLACEMENT: Place images where they have maximum visual impact
+- HERO IMAGES: Use first/main images as large hero elements (width: 100%, height: 400-600px)
+- CONTENT IMAGES: Embed images within text with proper margins and flow
+- GALLERY STYLE: Multiple images should be in responsive grids
+- SIZING STRATEGY: Vary image sizes based on importance and content context
+- VISUAL HIERARCHY: Larger images for key concepts, smaller for supporting content
+- RESPONSIVE DESIGN: Images must work perfectly on mobile (max-width: 100%)
+- PROFESSIONAL STYLING: Add shadows, borders, and modern CSS effects
+- CONTEXTUAL POSITIONING: Float images left/right with text wrap when appropriate
+- BREATHING ROOM: Always include generous margins around images
+
+CSS STYLING FOR IMAGES:
+- Use object-fit: cover for consistent aspect ratios
+- Add border-radius for modern appearance (8-16px)
+- Include subtle box-shadows for depth
+- Implement hover effects where appropriate
+- Ensure proper spacing with margin/padding
+- Consider image overlays or captions when relevant
 
 STYLE ADAPTATION:
 Based on content type, automatically apply:
@@ -281,12 +309,41 @@ Based on content type, automatically apply:
 - Product/SaaS: Conversion-optimized, feature-focused
 - Personal: Warm, authentic, story-driven
 
-Remember: You're not just coding a website, you're crafting a digital experience that tells a story and drives action.`;
+Remember: You're not just coding a website, you're crafting a digital experience that tells a story and drives action. ALWAYS preserve user images by converting markers to <img> tags.`;
 
+  // Count images for the prompt
+  const imageCount = extractedImages.length;
+  const hasImages = imageCount > 0;
+  
   const userPrompt = `Transform this content into a ${settings.style} website with ${settings.colorScheme} color scheme:
 
 CONTENT TO TRANSFORM:
 ${contentString}
+
+${hasImages ? `
+🖼️ IMPORTANT - IMAGE HANDLING:
+- This content contains ${imageCount} image(s) that were extracted from the document
+- When you see [IMAGE: ...] or IMAGE_PLACEHOLDER in the content, create <img> tags with src="IMAGE_PLACEHOLDER"
+- These will be automatically replaced with the actual images after generation
+- ALWAYS include <img src="IMAGE_PLACEHOLDER" alt="Document Image" style="max-width: 100%; height: auto; border-radius: 12px; margin: 1.5rem 0; display: block;"> for each image location
+- Do NOT ignore image markers - they represent real images from the user's document
+
+🎯 STRATEGIC IMAGE PLACEMENT:
+- ANALYZE CONTENT CONTEXT: Understand what each image represents based on surrounding text
+- HERO PLACEMENT: If first image is important, make it a large hero image (full-width, 500px+ height)
+- CONTENT FLOW: Place images at natural breaks in content for maximum readability
+- VISUAL BALANCE: Distribute images throughout the page for balanced composition
+- SIZE VARIATION: Use different sizes - large for key images, medium for supporting, small for details
+- RESPONSIVE GRIDS: Multiple images should be in elegant grid layouts
+- TEXT INTEGRATION: Sometimes float images left/right with text wrapping for magazine-style layouts
+
+💎 PREMIUM IMAGE STYLING:
+- Each image should have unique, thoughtful styling based on its context and importance
+- Use modern CSS techniques: gradients, shadows, transforms, hover effects
+- Create visual hierarchy through sizing and positioning
+- Ensure images enhance the overall design narrative
+- Make images feel integrated, not just "dropped in"
+` : ''}
 
 STYLE REQUIREMENTS:
 - Style: ${settings.style}
@@ -302,7 +359,7 @@ CONTENT INTELLIGENCE TASKS:
 3. Generate appropriate headlines and subheadings
 4. Design call-to-action elements where relevant
 5. Add visual hierarchy that guides the eye naturally
-6. Include placeholder images that match the content theme
+${hasImages ? '6. PRESERVE ALL IMAGES: Convert every [IMAGE:...] marker into <img src="IMAGE_PLACEHOLDER"> tags' : '6. Include placeholder images that match the content theme'}
 7. Optimize for both desktop and mobile experiences
 
 ADVANCED DESIGN REQUIREMENTS:
@@ -323,6 +380,35 @@ VISUAL EXCELLENCE:
 - Gradients: Use contemporary gradient techniques when appropriate
 - Icons: Include relevant iconography (using Unicode or CSS shapes)
 - Layout: Create magazine-quality layouts with visual interest
+
+${hasImages ? `
+🚨 CRITICAL IMAGE INSTRUCTION:
+For EVERY occurrence of [IMAGE: ...] or IMAGE_PLACEHOLDER in the content:
+
+1. CREATE STRATEGIC IMG TAGS: Don't just add generic img tags - think about the context
+2. VARY THE STYLING: Each image should have different styling based on its importance:
+   
+   📸 HERO IMAGES (first/main image):
+   <img src="IMAGE_PLACEHOLDER" alt="Hero Image" style="width: 100%; height: 500px; object-fit: cover; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); margin: 2rem 0;">
+   
+   🖼️ CONTENT IMAGES (supporting images):
+   <img src="IMAGE_PLACEHOLDER" alt="Content Image" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 12px 40px rgba(0,0,0,0.15); margin: 2rem 0; display: block;">
+   
+   📱 INLINE IMAGES (small/detail images):
+   <img src="IMAGE_PLACEHOLDER" alt="Detail Image" style="max-width: 300px; height: auto; border-radius: 8px; margin: 1rem; float: right; box-shadow: 0 8px 24px rgba(0,0,0,0.1);">
+   
+   🎨 GALLERY IMAGES (multiple images):
+   <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin: 2rem 0;">
+     <img src="IMAGE_PLACEHOLDER" alt="Gallery Image" style="width: 100%; height: 200px; object-fit: cover; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.12);">
+   </div>
+
+3. ANALYZE CONTEXT: Look at surrounding text to determine image importance and appropriate styling
+4. CREATE VISUAL HIERARCHY: Larger, more prominent styling for key images
+5. ENSURE RESPONSIVENESS: All images must work on mobile devices
+6. ADD PROFESSIONAL TOUCHES: Shadows, borders, hover effects, proper spacing
+
+DO NOT USE GENERIC STYLING - MAKE EACH IMAGE PLACEMENT STRATEGIC AND BEAUTIFUL!
+` : ''}
 
 CONVERSION OPTIMIZATION:
 - Clear value propositions above the fold
@@ -371,28 +457,36 @@ Generate a website that looks like it was built by a top-tier agency, with atten
     let imageIndex = 0;
     let videoIndex = 0;
     
-    // Also replace any external image URLs that AI might have generated
-    cleanHTML = cleanHTML.replace(/src="[^"]*\.(jpg|jpeg|png|gif|webp)"/g, (match: string) => {
-      const imageUrl = imageData[imageIndex];
-      imageIndex++;
-      return imageUrl ? `src="${imageUrl}"` : match;
-    });
+    console.log(`🖼️ Starting image replacement. Available images: ${imageData.length}`);
     
-    // Remove any <img> tags that AI might have generated and replace with placeholders
+    // First, remove any <img> tags that AI might have generated and replace with placeholders
     cleanHTML = cleanHTML.replace(/<img[^>]*>/g, 'IMAGE_PLACEHOLDER');
     cleanHTML = cleanHTML.replace(/<video[^>]*>[\s\S]*?<\/video>/g, 'VIDEO_PLACEHOLDER');
     
+    // Replace IMAGE_PLACEHOLDER with actual images
     cleanHTML = cleanHTML.replace(/IMAGE_PLACEHOLDER/g, () => {
       const imageUrl = imageData[imageIndex];
       imageIndex++;
       
       if (imageUrl) {
+        console.log(`✅ Replaced IMAGE_PLACEHOLDER ${imageIndex} with actual image`);
         return `<img src="${imageUrl}" alt="Document Image" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.12); margin: 1.5rem 0; display: block; object-fit: cover;" />`;
       } else {
         return `<div style="width: 100%; height: 200px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1rem; font-weight: 500; margin: 1.5rem 0;">📸 Image</div>`;
       }
     });
     
+    // Also replace any external image URLs that AI might have generated
+    imageIndex = 0; // Reset for external URLs
+    cleanHTML = cleanHTML.replace(/src="[^"]*\.(jpg|jpeg|png|gif|webp)"/g, (match: string) => {
+      const imageUrl = imageData[imageIndex];
+      imageIndex++;
+      return imageUrl ? `src="${imageUrl}"` : match;
+    });
+    
+    console.log(`🖼️ Image replacement complete. Used ${imageIndex}/${imageData.length} images`);
+    
+    // Handle videos
     cleanHTML = cleanHTML.replace(/VIDEO_PLACEHOLDER/g, () => {
       const videoUrl = videoData[videoIndex];
       videoIndex++;
