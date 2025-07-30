@@ -5,7 +5,13 @@ function LiveBlocksProvider({children} : {children: React.ReactNode}) {
     throw new Error("NEXT_PUBLIC_LIVEBLOCKS_ID is not set")
   }
   return (
-    <LiveblocksProvider throttle={16} authEndpoint={"/auth-endpoint"} >{children}</LiveblocksProvider>
+    <LiveblocksProvider 
+      throttle={16} 
+      authEndpoint={"/auth-endpoint"}
+      largeMessageStrategy="split"
+    >
+      {children}
+    </LiveblocksProvider>
   )
 }
 
