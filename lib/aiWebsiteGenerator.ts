@@ -37,162 +37,101 @@ interface ContentAnalysis {
 // New: Generate images using AI
 async function generateAIImages(content: string, count: number = 3): Promise<string[]> {
   try {
-    // Analyze content to determine the most relevant image types
+    console.log('🎨 Starting AI image generation...');
+    
+    if (!content || typeof content !== 'string') {
+      console.warn('⚠️ Invalid content provided for image generation');
+      return [];
+    }
+    
+    if (count <= 0 || count > 5) {
+      console.warn('⚠️ Invalid image count, using default of 3');
+      count = 3;
+    }
+    
     const response = await anthropic.messages.create({
       model: "claude-3-5-sonnet-20241022",
-      max_tokens: 800,
-      temperature: 0.3,
+      max_tokens: 1000,
+      temperature: 0.7,
       messages: [
         {
           role: "user",
-          content: `Analyze this content and determine the most relevant image types for a website:
+          content: `Generate ${count} professional, high-quality image URLs for a website based on this content:
 
-Content: ${content.substring(0, 1500)}
+CONTENT:
+${content.substring(0, 1000)}
 
-Based on the content, provide:
-1. Content type (business, ecommerce, portfolio, blog, etc.)
-2. Primary industry/theme
-3. Target audience
-4. 3 specific image descriptions that would be most relevant
+REQUIREMENTS:
+- Professional, modern images
+- Relevant to the content theme
+- High-quality stock photos or illustrations
+- Suitable for business/website use
+- Diverse and complementary images
 
-Return in this exact format:
-CONTENT_TYPE: [type]
-INDUSTRY: [industry]
-AUDIENCE: [audience]
-IMAGE1: [specific description for hero image]
-IMAGE2: [specific description for content image]
-IMAGE3: [specific description for supporting image]`
+Return ONLY a JSON array of image URLs, like:
+["https://example.com/image1.jpg", "https://example.com/image2.jpg"]`
         }
       ]
     });
 
-    const analysis = response.content[0]?.type === 'text' ? response.content[0].text : '';
+    const imageText = response.content[0]?.type === 'text' ? response.content[0].text : '';
     
-    // Parse the analysis
-    const lines = analysis.split('\n').filter(line => line.trim());
-    const contentType = lines.find(line => line.startsWith('CONTENT_TYPE:'))?.split(':')[1]?.trim() || 'business';
-    const industry = lines.find(line => line.startsWith('INDUSTRY:'))?.split(':')[1]?.trim() || 'general';
-    const image1 = lines.find(line => line.startsWith('IMAGE1:'))?.split(':')[1]?.trim() || 'professional business meeting';
-    const image2 = lines.find(line => line.startsWith('IMAGE2:'))?.split(':')[1]?.trim() || 'modern office workspace';
-    const image3 = lines.find(line => line.startsWith('IMAGE3:'))?.split(':')[1]?.trim() || 'team collaboration';
-    
-    console.log(`🎯 Content analysis: ${contentType} in ${industry} industry`);
-    console.log(`🖼️ Image descriptions: ${image1}, ${image2}, ${image3}`);
-    
-    // Generate relevant images based on content analysis
-    const images = [];
-    
-    // Use the AI's specific descriptions to generate more relevant images
-    console.log(`🎯 Using AI analysis: ${contentType} in ${industry} industry`);
-    console.log(`🖼️ AI suggested images: ${image1}, ${image2}, ${image3}`);
-    
-    // Create more diverse and relevant image URLs based on the AI's analysis
-    const imageMap = {
-      // Ecommerce/Retail
-      'shopping': 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      'products': 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      'retail': 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      'ecommerce': 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      
-      // Creative/Portfolio
-      'creative': 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      'design': 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      'art': 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      'portfolio': 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      
-      // Technology
-      'tech': 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      'technology': 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      'coding': 'https://images.unsplash.com/photo-1518186285589-2f7649de83e0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      'development': 'https://images.unsplash.com/photo-1518186285589-2f7649de83e0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      
-      // Food/Restaurant
-      'food': 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      'restaurant': 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      'cooking': 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      
-      // Fitness/Health
-      'fitness': 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      'health': 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      'workout': 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      
-      // Education/Learning
-      'education': 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      'learning': 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      'students': 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      
-      // Business/Professional
-      'business': 'https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      'office': 'https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      'meeting': 'https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      'team': 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      
-      // Default fallbacks
-      'default': 'https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
-    };
-    
-    // Function to find the best matching image based on description
-    function findBestImage(description: string): string {
-      const desc = description.toLowerCase();
-      
-      // Check for specific keywords in the description
-      for (const [keyword, url] of Object.entries(imageMap)) {
-        if (desc.includes(keyword)) {
-          console.log(`🎯 Matched "${keyword}" for description: "${description}"`);
-          return url;
-        }
-      }
-      
-      // If no specific match, use content type
-      if (contentType.includes('ecommerce') || industry.includes('retail')) {
-        return imageMap.shopping;
-      } else if (contentType.includes('portfolio') || industry.includes('creative')) {
-        return imageMap.creative;
-      } else if (contentType.includes('tech') || industry.includes('technology')) {
-        return imageMap.tech;
-      } else if (contentType.includes('food') || industry.includes('restaurant')) {
-        return imageMap.food;
-      } else if (contentType.includes('fitness') || industry.includes('health')) {
-        return imageMap.fitness;
-      } else if (contentType.includes('education') || industry.includes('learning')) {
-        return imageMap.education;
-      } else {
-        return imageMap.default;
-      }
+    if (!imageText || imageText.trim().length === 0) {
+      console.warn('⚠️ AI returned empty image response');
+      return [];
     }
     
-    // Generate images based on AI descriptions
-    images.push(findBestImage(image1)); // Hero image
-    images.push(findBestImage(image2)); // Content image  
-    images.push(findBestImage(image3)); // Supporting image
+    // Try to parse the JSON response
+    let imageUrls: string[];
+    try {
+      imageUrls = JSON.parse(imageText);
+    } catch (parseError) {
+      console.error('❌ Failed to parse AI image JSON:', parseError);
+      return [];
+    }
     
-    return images;
+    // Validate the response
+    if (!Array.isArray(imageUrls)) {
+      console.warn('⚠️ AI response is not an array');
+      return [];
+    }
+    
+    // Filter out invalid URLs and limit to requested count
+    const validUrls = imageUrls
+      .filter(url => typeof url === 'string' && url.startsWith('http'))
+      .slice(0, count);
+    
+    console.log(`✅ Generated ${validUrls.length} valid image URLs`);
+    return validUrls;
+    
   } catch (error) {
-    console.error('Failed to generate AI images:', error);
-    // Fallback to generic professional images
-    return [
-      'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=800&h=600&fit=crop'
-    ];
+    console.error('❌ Error in AI image generation:', error);
+    return []; // Return empty array as fallback
   }
 }
 
 // New: Enhanced content analysis
 async function analyzeContentProactively(content: string): Promise<ContentAnalysis> {
   try {
+    console.log('🔍 Starting proactive content analysis...');
+    
+    if (!content || typeof content !== 'string') {
+      throw new Error('Invalid content provided for analysis');
+    }
+    
     const response = await anthropic.messages.create({
       model: "claude-3-5-sonnet-20241022",
-      max_tokens: 800,
-      temperature: 0.3,
+      max_tokens: 1000,
+      temperature: 0.2,
       messages: [
         {
           role: "user",
-          content: `Analyze this content and provide comprehensive insights for website design:
+          content: `Analyze this content and provide a structured analysis in JSON format:
 
-Content: ${content.substring(0, 2000)}
+CONTENT:
+${content.substring(0, 2000)}
 
-Provide analysis in this exact JSON format:
+ANALYSIS FRAMEWORK:
 {
   "contentType": "business|creative|technical|personal|ecommerce|portfolio|blog|landing",
   "targetAudience": "description of target audience",
@@ -204,37 +143,60 @@ Provide analysis in this exact JSON format:
   "industry": "industry name"
 }
 
-Focus on actionable insights that can improve the website design and user experience.`
+Return ONLY valid JSON.`
         }
       ]
     });
 
-    const analysis = response.content[0]?.type === 'text' ? response.content[0].text : '';
-    const cleanAnalysis = analysis.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    const analysisText = response.content[0]?.type === 'text' ? response.content[0].text : '';
     
+    if (!analysisText) {
+      throw new Error('AI returned empty analysis response');
+    }
+    
+    // Try to parse the JSON response
+    let analysis: ContentAnalysis;
     try {
-      return JSON.parse(cleanAnalysis);
+      analysis = JSON.parse(analysisText);
     } catch (parseError) {
-      console.error('Failed to parse content analysis:', parseError);
-      return {
+      console.error('❌ Failed to parse AI analysis JSON:', parseError);
+      // Return a default analysis
+      analysis = {
         contentType: 'business',
         targetAudience: 'General audience',
         keyThemes: ['Professional', 'Quality', 'Service'],
-        suggestedSections: ['Hero', 'About', 'Services'],
-        callToActions: ['Learn More', 'Contact Us'],
+        suggestedSections: ['About', 'Services', 'Contact'],
+        callToActions: ['Learn More', 'Get Started'],
         visualElements: ['Professional imagery', 'Clean design'],
         tone: 'professional',
         industry: 'General'
       };
     }
+    
+    // Validate and sanitize the analysis
+    const safeAnalysis: ContentAnalysis = {
+      contentType: analysis.contentType || 'business',
+      targetAudience: analysis.targetAudience || 'General audience',
+      keyThemes: Array.isArray(analysis.keyThemes) ? analysis.keyThemes : ['Professional'],
+      suggestedSections: Array.isArray(analysis.suggestedSections) ? analysis.suggestedSections : ['About'],
+      callToActions: Array.isArray(analysis.callToActions) ? analysis.callToActions : ['Learn More'],
+      visualElements: Array.isArray(analysis.visualElements) ? analysis.visualElements : ['Professional imagery'],
+      tone: analysis.tone || 'professional',
+      industry: analysis.industry || 'General'
+    };
+    
+    console.log('✅ Content analysis completed successfully');
+    return safeAnalysis;
+    
   } catch (error) {
-    console.error('Content analysis failed:', error);
+    console.error('❌ Error in content analysis:', error);
+    // Return a safe default analysis
     return {
       contentType: 'business',
       targetAudience: 'General audience',
       keyThemes: ['Professional', 'Quality', 'Service'],
-      suggestedSections: ['Hero', 'About', 'Services'],
-      callToActions: ['Learn More', 'Contact Us'],
+      suggestedSections: ['About', 'Services', 'Contact'],
+      callToActions: ['Learn More', 'Get Started'],
       visualElements: ['Professional imagery', 'Clean design'],
       tone: 'professional',
       industry: 'General'
@@ -245,39 +207,62 @@ Focus on actionable insights that can improve the website design and user experi
 // New: Enhance content with AI
 async function enhanceContentWithAI(content: string, analysis: ContentAnalysis): Promise<string> {
   try {
+    console.log('✨ Starting content enhancement...');
+    
+    if (!content || typeof content !== 'string') {
+      console.warn('⚠️ Invalid content provided for enhancement, returning original');
+      return content;
+    }
+    
+    if (!analysis) {
+      console.warn('⚠️ No analysis provided for enhancement, returning original content');
+      return content;
+    }
+    
     const response = await anthropic.messages.create({
       model: "claude-3-5-sonnet-20241022",
-      max_tokens: 1000,
-      temperature: 0.4,
+      max_tokens: 1500,
+      temperature: 0.3,
       messages: [
         {
           role: "user",
-          content: `Enhance this content for a website, making it more engaging and professional:
+          content: `Enhance this content for a ${analysis.contentType} website targeting ${analysis.targetAudience}.
 
-Original Content: ${content.substring(0, 1500)}
+ORIGINAL CONTENT:
+${content.substring(0, 1500)}
 
-Content Analysis:
-- Type: ${analysis.contentType}
-- Target Audience: ${analysis.targetAudience}
+CONTENT ANALYSIS:
 - Key Themes: ${analysis.keyThemes.join(', ')}
 - Tone: ${analysis.tone}
+- Industry: ${analysis.industry}
+- Suggested Sections: ${analysis.suggestedSections.join(', ')}
 
-Enhance the content by:
-1. Adding compelling headlines and subheadings
-2. Improving readability and flow
-3. Adding relevant call-to-actions
-4. Making it more engaging for the target audience
-5. Maintaining the original message while making it more web-friendly
+ENHANCEMENT REQUIREMENTS:
+1. Maintain the original meaning and structure
+2. Improve clarity and engagement
+3. Add relevant details where appropriate
+4. Ensure professional tone for ${analysis.tone} style
+5. Keep it concise and impactful
 
-Return the enhanced content with better structure and engagement.`
+Return the enhanced content only.`
         }
       ]
     });
 
-    return response.content[0]?.type === 'text' ? response.content[0].text : content;
+    const enhancedText = response.content[0]?.type === 'text' ? response.content[0].text : '';
+    
+    if (!enhancedText || enhancedText.trim().length === 0) {
+      console.warn('⚠️ AI returned empty enhancement, using original content');
+      return content;
+    }
+    
+    console.log('✅ Content enhancement completed successfully');
+    return enhancedText.trim();
+    
   } catch (error) {
-    console.error('Content enhancement failed:', error);
-    return content;
+    console.error('❌ Error in content enhancement:', error);
+    console.log('🔄 Falling back to original content');
+    return content; // Return original content as fallback
   }
 }
 
@@ -287,227 +272,262 @@ export async function generateAIWebsite(
   documentData: DocumentData,
   settings: AIWebsiteSettings
 ): Promise<string> {
-  
-  // Convert Liveblocks content to a simple string representation
-  let contentString = JSON.stringify(documentData.content, null, 2);
-  
-  console.log(`Original content length: ${contentString.length} characters`);
-  
-  // Extract base64 images and videos for later use
-  const base64Images = contentString.match(/"data:image\/[^;]+;base64,[^"]+"/g) || [];
-  const base64Videos = contentString.match(/"data:video\/[^;]+;base64,[^"]+"/g) || [];
-  console.log(`Found ${base64Images.length} base64 images and ${base64Videos.length} base64 videos`);
-  
-  // Store the actual base64 data for later injection
-  const extractedImages = base64Images.map(img => img.replace(/"/g, ''));
-  const extractedVideos = base64Videos.map(video => video.replace(/"/g, ''));
-  
-  // Replace base64 with placeholders to keep content small
-  contentString = contentString.replace(/"data:image\/[^;]+;base64,[^"]+"/g, '"IMAGE_PLACEHOLDER"');
-  contentString = contentString.replace(/"data:video\/[^;]+;base64,[^"]+"/g, '"VIDEO_PLACEHOLDER"');
-  
-  // Also remove any other large data URLs
-  contentString = contentString.replace(/"data:[^"]{1000,}"/g, '"DATA_URL_PLACEHOLDER"');
-  
-  // Remove any remaining large strings (base64 might be in different format)
-  contentString = contentString.replace(/"[^"]{5000,}"/g, '"LARGE_DATA_PLACEHOLDER"');
-  
-  // Store extracted data for post-processing
-  let imageData = extractedImages;
-  let videoData = extractedVideos;
-  
-  console.log(`Content length after filtering: ${contentString.length} characters`);
-  
-  // NEW: Proactive content enhancement
-  let enhancedContent = contentString;
-  let contentAnalysis: ContentAnalysis | null = null;
-  
-  if (settings.enhanceContent !== false) {
-    console.log('🔍 Analyzing content proactively...');
-    contentAnalysis = await analyzeContentProactively(contentString);
-    console.log('📊 Content analysis complete:', contentAnalysis);
+  try {
+    console.log('🚀 Starting AI website generation...');
     
-    enhancedContent = await enhanceContentWithAI(contentString, contentAnalysis);
-    console.log('✨ Content enhanced');
-    
-
-  }
-  
-  // NEW: Auto-generate images if none provided and setting is enabled
-  if (imageData.length === 0 && settings.autoGenerateImages !== false) {
-    console.log('🖼️ No images found, generating AI images...');
-    const aiGeneratedImages = await generateAIImages(contentString, 3);
-    imageData = [...imageData, ...aiGeneratedImages];
-    console.log('✅ Generated', aiGeneratedImages.length, 'AI images');
-  }
-  
-  // Debug: Show what's taking up space if still large
-  if (contentString.length > 5000) {
-    console.log('🔍 DEBUG: Still large after base64 removal. Checking for other large strings...');
-    const largeStrings = contentString.match(/"[^"]{1000,}"/g) || [];
-    console.log(`Found ${largeStrings.length} large strings (>1000 chars)`);
-    if (largeStrings.length > 0) {
-      console.log('First large string length:', largeStrings[0]?.length || 0);
+    // Validate inputs
+    if (!documentData || !documentData.content) {
+      throw new Error('Invalid document data provided');
     }
-  }
-  
-  // Much more aggressive content reduction - extract only essential info
-  if (contentString.length > 2000) {
-    console.log('🔍 DEBUG: Large content detected. Creating simplified version...');
     
-    // Extract only the essential content (text, headings, lists)
-    const simplifiedContent = documentData.content.map((block: any) => {
-      if (typeof block === 'string') return block;
+    if (!Array.isArray(documentData.content)) {
+      throw new Error('Document content must be an array');
+    }
+    
+    // Ensure settings has required properties
+    const safeSettings = {
+      style: settings?.style || 'modern',
+      colorScheme: settings?.colorScheme || 'blue',
+      includeNavigation: settings?.includeNavigation ?? true,
+      includeTOC: settings?.includeTOC ?? false,
+      customInstructions: settings?.customInstructions || '',
+      navigationItems: Array.isArray(settings?.navigationItems) ? settings.navigationItems : [],
+      autoGenerateImages: settings?.autoGenerateImages ?? true,
+      enhanceContent: settings?.enhanceContent ?? true,
+    };
+    
+    console.log('📋 Settings validated:', safeSettings);
+    
+    // Convert document content to string with error handling
+    let contentString: string;
+    try {
+      contentString = JSON.stringify(documentData.content, null, 2);
+    } catch (error) {
+      console.error('❌ Error stringifying content:', error);
+      contentString = 'Document content could not be processed';
+    }
+    
+    if (!contentString || contentString.length === 0) {
+      throw new Error('Document content is empty or invalid');
+    }
+    
+    console.log(`📄 Content length: ${contentString.length} characters`);
+    
+    // Extract base64 images and videos for later use
+    const base64Images = contentString.match(/"data:image\/[^;]+;base64,[^"]+"/g) || [];
+    const base64Videos = contentString.match(/"data:video\/[^;]+;base64,[^"]+"/g) || [];
+    console.log(`Found ${base64Images.length} base64 images and ${base64Videos.length} base64 videos`);
+    
+    // Store the actual base64 data for later injection
+    const extractedImages = (base64Images && Array.isArray(base64Images) ? base64Images : []).map(img => img.replace(/"/g, ''));
+    const extractedVideos = (base64Videos && Array.isArray(base64Videos) ? base64Videos : []).map(video => video.replace(/"/g, ''));
+    
+    // Replace base64 with placeholders to keep content small
+    contentString = contentString.replace(/"data:image\/[^;]+;base64,[^"]+"/g, '"IMAGE_PLACEHOLDER"');
+    contentString = contentString.replace(/"data:video\/[^;]+;base64,[^"]+"/g, '"VIDEO_PLACEHOLDER"');
+    
+    // Also remove any other large data URLs
+    contentString = contentString.replace(/"data:[^"]{1000,}"/g, '"DATA_URL_PLACEHOLDER"');
+    
+    // Remove any remaining large strings (base64 might be in different format)
+    contentString = contentString.replace(/"[^"]{5000,}"/g, '"LARGE_DATA_PLACEHOLDER"');
+    
+    // Store extracted data for post-processing
+    let imageData = extractedImages;
+    let videoData = extractedVideos;
+    
+    console.log(`Content length after filtering: ${contentString.length} characters`);
+    
+    // NEW: Proactive content enhancement
+    let enhancedContent = contentString;
+    let contentAnalysis: ContentAnalysis | null = null;
+    
+    if (safeSettings.enhanceContent !== false) {
+      console.log('🔍 Analyzing content proactively...');
+      contentAnalysis = await analyzeContentProactively(contentString);
+      console.log('📊 Content analysis complete:', contentAnalysis);
       
-      const { type, content, props } = block;
+      enhancedContent = await enhanceContentWithAI(contentString, contentAnalysis);
+      console.log('✨ Content enhanced');
       
-      // Extract text content
-      const textContent = content?.map((item: any) => item.text || '').join(' ') || '';
-      
-      switch (type) {
-        case 'heading':
-          return `# ${textContent}`;
-        case 'paragraph':
-          return textContent;
-        case 'bulletListItem':
-          return `• ${textContent}`;
-        case 'numberedListItem':
-          return `${props?.index || 1}. ${textContent}`;
-        case 'quote':
-          return `> ${textContent}`;
-        case 'image':
-          return `[IMAGE: ${textContent || 'Image'}]`;
-        case 'video':
-          return `[VIDEO: ${textContent || 'Video'}]`;
-        default:
-          return textContent;
+
+    }
+    
+    // NEW: Auto-generate images if none provided and setting is enabled
+    if (imageData.length === 0 && safeSettings.autoGenerateImages !== false) {
+      console.log('🖼️ No images found, generating AI images...');
+      const aiGeneratedImages = await generateAIImages(contentString, 3);
+      imageData = [...imageData, ...aiGeneratedImages];
+      console.log('✅ Generated', aiGeneratedImages.length, 'AI images');
+    }
+    
+    // Debug: Show what's taking up space if still large
+    if (contentString.length > 5000) {
+      console.log('�� DEBUG: Still large after base64 removal. Checking for other large strings...');
+      const largeStrings = contentString.match(/"[^"]{1000,}"/g) || [];
+      console.log(`Found ${largeStrings.length} large strings (>1000 chars)`);
+      if (largeStrings.length > 0) {
+        console.log('First large string length:', largeStrings[0]?.length || 0);
       }
-    }).filter(text => text.trim().length > 0).join('\n\n');
+    }
     
-    contentString = simplifiedContent;
-    console.log(`Simplified content length: ${contentString.length} characters`);
-  }
-  
-  // Final truncation if still too long
-  const maxContentLength = 2000; // Very conservative limit
-  if (contentString.length > maxContentLength) {
-    console.log(`Content too large (${contentString.length} chars), truncating...`);
-    contentString = contentString.substring(0, maxContentLength) + '...';
-  }
-  
-  // Helper functions for cleaner prompt organization
-  function getStyleDefinition(style: string): string {
-    const definitions = {
-      modern: `
+    // Much more aggressive content reduction - extract only essential info
+    if (contentString.length > 2000) {
+      console.log('🔍 DEBUG: Large content detected. Creating simplified version...');
+      
+      // Extract only the essential content (text, headings, lists)
+      const simplifiedContent = documentData.content.map((block: any) => {
+        if (typeof block === 'string') return block;
+        
+        const { type, content, props } = block;
+        
+        // Extract text content
+        const textContent = (content && Array.isArray(content) ? content : []).map((item: any) => item.text || '').join(' ') || '';
+        
+        switch (type) {
+          case 'heading':
+            return `# ${textContent}`;
+          case 'paragraph':
+            return textContent;
+          case 'bulletListItem':
+            return `• ${textContent}`;
+          case 'numberedListItem':
+            return `${props?.index || 1}. ${textContent}`;
+          case 'quote':
+            return `> ${textContent}`;
+          case 'image':
+            return `[IMAGE: ${textContent || 'Image'}]`;
+          case 'video':
+            return `[VIDEO: ${textContent || 'Video'}]`;
+          default:
+            return textContent;
+        }
+      }).filter(text => text.trim().length > 0).join('\n\n');
+      
+      contentString = simplifiedContent;
+      console.log(`Simplified content length: ${contentString.length} characters`);
+    }
+    
+    // Final truncation if still too long
+    const maxContentLength = 2000; // Very conservative limit
+    if (contentString.length > maxContentLength) {
+      console.log(`Content too large (${contentString.length} chars), truncating...`);
+      contentString = contentString.substring(0, maxContentLength) + '...';
+    }
+    
+    // Helper functions for cleaner prompt organization
+    function getStyleDefinition(style: string): string {
+      const definitions = {
+        modern: `
 • Clean, contemporary design with subtle animations
 • Glassmorphism effects and gradient backgrounds  
 • Rounded corners (8px-16px), soft shadows
 • Card-based layouts with ample whitespace
 • Smooth hover transitions and micro-interactions`,
 
-      minimal: `
+        minimal: `
 • Extreme simplicity with maximum impact
 • Monochromatic or limited color palette
 • Abundant whitespace and clean typography
 • No decorative elements or unnecessary styling
 • Focus on content hierarchy and readability`,
 
-      professional: `
+        professional: `
 • Corporate and trustworthy appearance
 • Conservative color palette (blues, grays, whites)
 • Structured layouts with clear sections
 • Traditional typography and formal styling
 • Business-appropriate design elements`,
 
-      creative: `
+        creative: `
 • Bold, artistic, and expressive design
 • Vibrant colors and unique compositions
 • Asymmetrical layouts and creative typography
 • Eye-catching visuals and dynamic elements
 • Artistic freedom while maintaining usability`,
 
-      blog: `
+        blog: `
 • Content-first design optimized for reading
 • Typography-focused with excellent readability
 • Article-style layouts with proper spacing
 • Sidebar or minimal navigation
 • Reading-friendly color schemes and fonts`
-    };
+      };
 
-    return definitions[style as keyof typeof definitions] || definitions.modern;
-  }
+      return definitions[style as keyof typeof definitions] || definitions.modern;
+    }
 
-  function getColorDefinition(colorScheme: string): string {
-    const definitions = {
-      blue: `
+    function getColorDefinition(colorScheme: string): string {
+      const definitions = {
+        blue: `
 • Primary: #2563eb (blue-600), #3b82f6 (blue-500)
 • Secondary: #dbeafe (blue-100), #bfdbfe (blue-200)  
 • Accent: #1d4ed8 (blue-700), #1e40af (blue-800)
 • Text: #1e293b on light, #f8fafc on dark
 • Background: #ffffff, #f8fafc (light gray)`,
 
-      purple: `
+        purple: `
 • Primary: #7c3aed (violet-600), #8b5cf6 (violet-500)
 • Secondary: #ede9fe (violet-100), #ddd6fe (violet-200)
 • Accent: #6d28d9 (violet-700), #5b21b6 (violet-800) 
 • Text: #1e293b on light, #f8fafc on dark
 • Background: #ffffff, #faf5ff (purple tint)`,
 
-      green: `
+        green: `
 • Primary: #059669 (emerald-600), #10b981 (emerald-500)
 • Secondary: #d1fae5 (emerald-100), #a7f3d0 (emerald-200)
 • Accent: #047857 (emerald-700), #065f46 (emerald-800)
 • Text: #1e293b on light, #f8fafc on dark  
 • Background: #ffffff, #f0fdf4 (green tint)`,
 
-      orange: `
+        orange: `
 • Primary: #ea580c (orange-600), #f97316 (orange-500)
 • Secondary: #fed7aa (orange-200), #fdba74 (orange-300)
 • Accent: #c2410c (orange-700), #9a3412 (orange-800)
 • Text: #1e293b on light, #f8fafc on dark
 • Background: #ffffff, #fff7ed (orange tint)`,
 
-      dark: `
+        dark: `
 • Primary: #374151 (gray-700), #4b5563 (gray-600)
 • Secondary: #1f2937 (gray-800), #111827 (gray-900)
 • Accent: #6366f1 (indigo-500), #8b5cf6 (violet-500)
 • Text: #f9fafb on dark, #1f2937 on light
 • Background: #111827, #1f2937 (dark grays)`,
 
-      monochrome: `
+        monochrome: `
 • Primary: #000000, #ffffff
 • Secondary: #f3f4f6 (gray-100), #e5e7eb (gray-200)
 • Accent: #6b7280 (gray-500), #374151 (gray-700)
 • Text: #000000 on light, #ffffff on dark
 • Background: #ffffff, #f9fafb (near white)`,
 
-      sunset: `
+        sunset: `
 • Primary: #f59e0b (amber-500), #f97316 (orange-500)
 • Secondary: #fef3c7 (amber-100), #fed7aa (orange-200)
 • Accent: #dc2626 (red-600), #be185d (pink-700)
 • Text: #1e293b on light, #f8fafc on dark
 • Background: #ffffff, #fffbeb (warm tint)`,
 
-      ocean: `
+        ocean: `
 • Primary: #0891b2 (cyan-600), #06b6d4 (cyan-500)
 • Secondary: #cffafe (cyan-100), #a5f3fc (cyan-200)
 • Accent: #0e7490 (cyan-700), #155e75 (cyan-800)
 • Text: #1e293b on light, #f8fafc on dark
 • Background: #ffffff, #f0fdff (cyan tint)`,
 
-      forest: `
+        forest: `
 • Primary: #16a34a (green-600), #22c55e (green-500)
 • Secondary: #dcfce7 (green-100), #bbf7d0 (green-200)
 • Accent: #15803d (green-700), #166534 (green-800)
 • Text: #1e293b on light, #f8fafc on dark
 • Background: #ffffff, #f0fdf4 (green tint)`
-    };
+      };
 
-    return definitions[colorScheme as keyof typeof definitions] || definitions.blue;
-  }
+      return definitions[colorScheme as keyof typeof definitions] || definitions.blue;
+    }
 
-  // Create an intelligent, comprehensive prompt for world-class website generation
-  const systemPrompt = `You are a pixel-perfect web developer who creates production-ready websites with EXACT spacing, typography, and layout. Every element must be positioned with mathematical precision.
+    // Create an intelligent, comprehensive prompt for world-class website generation
+    const systemPrompt = `You are a pixel-perfect web developer who creates production-ready websites with EXACT spacing, typography, and layout. Every element must be positioned with mathematical precision.
 
 CRITICAL REQUIREMENTS:
 - Generate ONLY complete HTML with embedded CSS
@@ -616,11 +636,11 @@ IMAGE HANDLING:
 OUTPUT FORMAT:
 Generate ONLY the HTML file with embedded CSS. No explanations or markdown.`;
 
-  // Count images for the prompt
-  const imageCount = extractedImages.length;
-  const hasImages = imageCount > 0;
-  
-  const userPrompt = `Transform this content into a ${settings.style} website with ${settings.colorScheme} color scheme:
+    // Count images for the prompt
+    const imageCount = extractedImages.length;
+    const hasImages = imageCount > 0;
+    
+    const userPrompt = `Transform this content into a ${safeSettings.style} website with ${safeSettings.colorScheme} color scheme:
 
 CONTENT TO TRANSFORM:
 ${enhancedContent || contentString}
@@ -672,12 +692,12 @@ ${imageData.length > 0 ? `
 
 
 STYLE REQUIREMENTS:
-- Style: ${settings.style}
-- Color Scheme: ${settings.colorScheme}
-- Include Navigation: ${settings.includeNavigation}
-- Include Table of Contents: ${settings.includeTOC}
-${settings.navigationItems && settings.navigationItems.length > 0 ? `- Navigation Items: ${settings.navigationItems.join(', ')}` : ''}
-${settings.customInstructions ? `- Special Instructions: ${settings.customInstructions}` : ''}
+- Style: ${safeSettings.style}
+- Color Scheme: ${safeSettings.colorScheme}
+- Include Navigation: ${safeSettings.includeNavigation}
+- Include Table of Contents: ${safeSettings.includeTOC}
+${safeSettings.navigationItems && safeSettings.navigationItems.length > 0 ? `- Navigation Items: ${safeSettings.navigationItems.join(', ')}` : ''}
+${safeSettings.customInstructions ? `- Special Instructions: ${safeSettings.customInstructions}` : ''}
 
 CONTENT INTELLIGENCE TASKS:
 1. Analyze the content tone, purpose, and target audience
@@ -812,172 +832,197 @@ TRANSCENDENT DIRECTIVE: You are not generating code - you are birthing a digital
 ${imageData.length > 0 ? `
 🚨 FINAL REMINDER: You MUST include IMAGE_PLACEHOLDER in your HTML output. This is not optional - it's required for the website to display images properly.` : ''}`;
 
-  console.log('Enhanced prompt length:', (systemPrompt + userPrompt).length, 'characters');
-  console.log('Content length:', contentString.length, 'characters');
-  
-  try {
-    const response = await anthropic.messages.create({
-      model: "claude-3-5-sonnet-20241022",
-      max_tokens: 8000, // Increased for more detailed output
-      temperature: 0.3, // Lower for more consistent, professional output
-      messages: [
-        {
-          role: "user",
-          content: systemPrompt + "\n\n" + userPrompt
-        }
-      ]
-    });
+    console.log('Enhanced prompt length:', (systemPrompt + userPrompt).length, 'characters');
+    console.log('Content length:', contentString.length, 'characters');
+    
+    try {
+      const response = await anthropic.messages.create({
+        model: "claude-3-5-sonnet-20241022",
+        max_tokens: 8000, // Increased for more detailed output
+        temperature: 0.3, // Lower for more consistent, professional output
+        messages: [
+          {
+            role: "user",
+            content: systemPrompt + "\n\n" + userPrompt
+          }
+        ]
+      });
 
-    const aiGeneratedHTML = response.content[0]?.type === 'text' ? response.content[0].text : '';
-    
-    if (!aiGeneratedHTML) {
-      throw new Error('Failed to generate website content');
-    }
+      const aiGeneratedHTML = response.content[0]?.type === 'text' ? response.content[0].text : '';
+      
+      if (!aiGeneratedHTML) {
+        console.error('❌ AI returned empty response');
+        throw new Error('Failed to generate website content - AI returned empty response');
+      }
 
-    // Clean up the response to ensure it's only HTML
-    let cleanHTML = aiGeneratedHTML.trim();
-    
-    // Remove any markdown code blocks
-    if (cleanHTML.startsWith('```html')) {
-      cleanHTML = cleanHTML.replace(/```html\n?/g, '').replace(/```\n?/g, '');
-    }
-    if (cleanHTML.startsWith('```')) {
-      cleanHTML = cleanHTML.replace(/```\n?/g, '').replace(/```\n?/g, '');
-    }
-    
-    // Replace placeholders with actual image/video sections
-    let imageIndex = 0;
-    let videoIndex = 0;
-    let placeholderCount = 0;
-    
-    console.log(`🖼️ Starting image replacement. Available images: ${imageData.length}`);
-    
-    // Count how many IMAGE_PLACEHOLDER instances exist in the HTML
-    const placeholderMatches = cleanHTML.match(/IMAGE_PLACEHOLDER/g);
-    placeholderCount = placeholderMatches ? placeholderMatches.length : 0;
-    console.log(`📊 Found ${placeholderCount} IMAGE_PLACEHOLDER instances in HTML`);
-    
-    // First, remove any <img> tags that AI might have generated and replace with placeholders
-    cleanHTML = cleanHTML.replace(/<img[^>]*>/g, 'IMAGE_PLACEHOLDER');
-    cleanHTML = cleanHTML.replace(/<video[^>]*>[\s\S]*?<\/video>/g, 'VIDEO_PLACEHOLDER');
-    
-    // Replace IMAGE_PLACEHOLDER with actual images
-    cleanHTML = cleanHTML.replace(/IMAGE_PLACEHOLDER/g, () => {
-      const imageUrl = imageData[imageIndex];
-      imageIndex++;
+      console.log('✅ AI generated HTML successfully');
+      console.log('📊 Generated HTML length:', aiGeneratedHTML.length, 'characters');
+
+      // Clean up the response to ensure it's only HTML
+      let cleanHTML = aiGeneratedHTML.trim();
       
-      if (imageUrl) {
-        console.log(`✅ Replaced IMAGE_PLACEHOLDER ${imageIndex} with actual image`);
-        return `<img src="${imageUrl}" alt="Document Image" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.12); margin: 1.5rem 0; display: block; object-fit: cover;" onerror="this.style.display='none';" />`;
-      } else {
-        return ``;
+      // Remove any markdown code blocks
+      if (cleanHTML.startsWith('```html')) {
+        cleanHTML = cleanHTML.replace(/```html\n?/g, '').replace(/```\n?/g, '');
       }
-    });
-    
-    // Also replace any external image URLs that AI might have generated
-    let externalImageIndex = 0;
-    cleanHTML = cleanHTML.replace(/src="[^"]*\.(jpg|jpeg|png|gif|webp)"/g, (match: string) => {
-      const imageUrl = imageData[externalImageIndex];
-      externalImageIndex++;
-      return imageUrl ? `src="${imageUrl}"` : match;
-    });
-    
-    console.log(`🖼️ Image replacement complete. Used ${imageIndex}/${imageData.length} images`);
-    
-    // NEW: If we have images but none were placed, insert them strategically
-    if (imageData.length > 0 && imageIndex === 0 && placeholderCount === 0) {
-      console.log('🔄 No image placeholders found, inserting images strategically...');
-      
-      let insertedCount = 0;
-      
-      for (let i = 0; i < imageData.length && insertedCount < 3; i++) {
-        const imageUrl = imageData[i];
-        let inserted = false;
-        
-        // Strategy 1: Insert after the first <h1> tag (hero image)
-        if (i === 0 && !inserted) {
-          const h1Match = cleanHTML.match(/<h1[^>]*>.*?<\/h1>/);
-          if (h1Match) {
-            const imageHTML = `
-            <div style="text-align: center; margin: 2rem 0;">
-              <img src="${imageUrl}" alt="Hero Image" style="width: 100%; max-width: 800px; height: 400px; object-fit: cover; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.15); margin: 2rem auto; display: block;" onerror="this.style.display='none';" />
-            </div>`;
-            
-            cleanHTML = cleanHTML.replace(h1Match[0], h1Match[0] + imageHTML);
-            inserted = true;
-            insertedCount++;
-            console.log(`✅ Inserted hero image after H1`);
-          }
-        }
-        
-        // Strategy 2: Insert after the first <h2> tag (content image)
-        if (!inserted) {
-          const h2Matches = cleanHTML.match(/<h2[^>]*>.*?<\/h2>/g);
-          if (h2Matches && h2Matches.length > i) {
-            const h2Match = h2Matches[i]; // Use different H2 for each image
-            const imageHTML = `
-            <div style="text-align: center; margin: 2rem 0;">
-              <img src="${imageUrl}" alt="Content Image ${i + 1}" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 12px 40px rgba(0,0,0,0.12); margin: 1.5rem 0; display: block; object-fit: cover;" onerror="this.style.display='none';" />
-            </div>`;
-            
-            cleanHTML = cleanHTML.replace(h2Match, h2Match + imageHTML);
-            inserted = true;
-            insertedCount++;
-            console.log(`✅ Inserted content image after H2 #${i + 1}`);
-          }
-        }
-        
-        // Strategy 3: Insert after the first <p> tag
-        if (!inserted) {
-          const pMatches = cleanHTML.match(/<p[^>]*>.*?<\/p>/g);
-          if (pMatches && pMatches.length > i) {
-            const pMatch = pMatches[i]; // Use different P for each image
-            const imageHTML = `
-            <div style="text-align: center; margin: 2rem 0;">
-              <img src="${imageUrl}" alt="Featured Image ${i + 1}" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); margin: 1.5rem 0; display: block; object-fit: cover;" onerror="this.style.display='none';" />
-            </div>`;
-            
-            cleanHTML = cleanHTML.replace(pMatch, pMatch + imageHTML);
-            inserted = true;
-            insertedCount++;
-            console.log(`✅ Inserted image after paragraph #${i + 1}`);
-          }
-        }
-        
-        // Strategy 4: Insert before closing </body> tag
-        if (!inserted) {
-          if (cleanHTML.includes('</body>')) {
-            const imageHTML = `
-            <div style="text-align: center; margin: 2rem 0;">
-              <img src="${imageUrl}" alt="Featured Image ${i + 1}" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); margin: 1.5rem 0; display: block; object-fit: cover;" onerror="this.style.display='none';" />
-            </div>`;
-            
-            cleanHTML = cleanHTML.replace('</body>', imageHTML + '</body>');
-            inserted = true;
-            insertedCount++;
-            console.log(`✅ Inserted image before closing body tag`);
-          }
-        }
+      if (cleanHTML.startsWith('```')) {
+        cleanHTML = cleanHTML.replace(/```\n?/g, '').replace(/```\n?/g, '');
       }
       
-      console.log(`🖼️ Strategic image insertion complete. Inserted ${insertedCount} images`);
-    }
-    
-    // Handle videos
-    cleanHTML = cleanHTML.replace(/VIDEO_PLACEHOLDER/g, () => {
-      const videoUrl = videoData[videoIndex];
-      videoIndex++;
+      console.log('🧹 Cleaned HTML length:', cleanHTML.length, 'characters');
       
-      if (videoUrl) {
-        return `<video controls style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.12); margin: 1.5rem 0; display: block;"><source src="${videoUrl}" type="video/mp4">Your browser does not support the video tag.</video>`;
-      } else {
-        return `<div style="width: 100%; height: 200px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1rem; font-weight: 500; margin: 1.5rem 0;">🎥 Video</div>`;
+      // Validate that we have actual HTML content
+      if (!cleanHTML.includes('<html') && !cleanHTML.includes('<body')) {
+        console.error('❌ AI response does not contain valid HTML structure');
+        console.log('🔍 AI Response preview:', cleanHTML.substring(0, 500));
+        throw new Error('AI generated invalid HTML structure');
       }
-    });
-    
-    // Ensure it starts with <!DOCTYPE html>
-    if (!cleanHTML.startsWith('<!DOCTYPE html>')) {
-      cleanHTML = `<!DOCTYPE html>
+
+      // Replace placeholders with actual image/video sections
+      let imageIndex = 0;
+      let videoIndex = 0;
+      let placeholderCount = 0;
+      
+      console.log(`🖼️ Starting image replacement. Available images: ${imageData.length}`);
+      console.log(`📊 Image data:`, imageData);
+      
+      // Count how many IMAGE_PLACEHOLDER instances exist in the HTML
+      const placeholderMatches = cleanHTML.match(/IMAGE_PLACEHOLDER/g);
+      placeholderCount = placeholderMatches ? placeholderMatches.length : 0;
+      console.log(`📊 Found ${placeholderCount} IMAGE_PLACEHOLDER instances in HTML`);
+      
+      // First, remove any <img> tags that AI might have generated and replace with placeholders
+      cleanHTML = cleanHTML.replace(/<img[^>]*>/g, 'IMAGE_PLACEHOLDER');
+      cleanHTML = cleanHTML.replace(/<video[^>]*>[\s\S]*?<\/video>/g, 'VIDEO_PLACEHOLDER');
+      
+      // Replace IMAGE_PLACEHOLDER with actual images
+      cleanHTML = cleanHTML.replace(/IMAGE_PLACEHOLDER/g, () => {
+        const imageUrl = imageData[imageIndex];
+        imageIndex++;
+        
+        if (imageUrl) {
+          console.log(`✅ Replaced IMAGE_PLACEHOLDER ${imageIndex} with actual image: ${imageUrl.substring(0, 50)}...`);
+          return `<img src="${imageUrl}" alt="Document Image" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.12); margin: 1.5rem 0; display: block; object-fit: cover;" onerror="this.style.display='none';" />`;
+        } else {
+          console.log(`❌ No image URL available for placeholder ${imageIndex}`);
+          return `<div style="width: 100%; height: 200px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1rem; font-weight: 500; margin: 1.5rem 0;">📸 Image</div>`;
+        }
+      });
+      
+      // Also replace any external image URLs that AI might have generated
+      let externalImageIndex = 0;
+      cleanHTML = cleanHTML.replace(/src="[^"]*\.(jpg|jpeg|png|gif|webp)"/g, (match: string) => {
+        const imageUrl = imageData[externalImageIndex];
+        externalImageIndex++;
+        if (imageUrl) {
+          console.log(`✅ Replaced external image URL with: ${imageUrl.substring(0, 50)}...`);
+          return `src="${imageUrl}"`;
+        }
+        return match;
+      });
+      
+      console.log(`🖼️ Image replacement complete. Used ${imageIndex}/${imageData.length} images`);
+      
+      // NEW: If we have images but none were placed, insert them strategically
+      if (imageData.length > 0 && imageIndex === 0 && placeholderCount === 0) {
+        console.log('🔄 No image placeholders found, inserting images strategically...');
+        
+        let insertedCount = 0;
+        
+        for (let i = 0; i < imageData.length && insertedCount < 3; i++) {
+          const imageUrl = imageData[i];
+          let inserted = false;
+          
+          console.log(`🔄 Attempting to insert image ${i + 1}: ${imageUrl.substring(0, 50)}...`);
+          
+          // Strategy 1: Insert after the first <h1> tag (hero image)
+          if (i === 0 && !inserted) {
+            const h1Match = cleanHTML.match(/<h1[^>]*>.*?<\/h1>/);
+            if (h1Match) {
+              const imageHTML = `
+              <div style="text-align: center; margin: 2rem 0;">
+                <img src="${imageUrl}" alt="Hero Image" style="width: 100%; max-width: 800px; height: 400px; object-fit: cover; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.15); margin: 2rem auto; display: block;" onerror="this.style.display='none';" />
+              </div>`;
+              
+              cleanHTML = cleanHTML.replace(h1Match[0], h1Match[0] + imageHTML);
+              inserted = true;
+              insertedCount++;
+              console.log(`✅ Inserted hero image after H1`);
+            }
+          }
+          
+          // Strategy 2: Insert after the first <h2> tag (content image)
+          if (!inserted) {
+            const h2Matches = cleanHTML.match(/<h2[^>]*>.*?<\/h2>/g);
+            if (h2Matches && h2Matches.length > i) {
+              const h2Match = h2Matches[i]; // Use different H2 for each image
+              const imageHTML = `
+              <div style="text-align: center; margin: 2rem 0;">
+                <img src="${imageUrl}" alt="Content Image ${i + 1}" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 12px 40px rgba(0,0,0,0.12); margin: 1.5rem 0; display: block; object-fit: cover;" onerror="this.style.display='none';" />
+              </div>`;
+              
+              cleanHTML = cleanHTML.replace(h2Match, h2Match + imageHTML);
+              inserted = true;
+              insertedCount++;
+              console.log(`✅ Inserted content image after H2 #${i + 1}`);
+            }
+          }
+          
+          // Strategy 3: Insert after the first <p> tag
+          if (!inserted) {
+            const pMatches = cleanHTML.match(/<p[^>]*>.*?<\/p>/g);
+            if (pMatches && pMatches.length > i) {
+              const pMatch = pMatches[i]; // Use different P for each image
+              const imageHTML = `
+              <div style="text-align: center; margin: 2rem 0;">
+                <img src="${imageUrl}" alt="Featured Image ${i + 1}" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); margin: 1.5rem 0; display: block; object-fit: cover;" onerror="this.style.display='none';" />
+              </div>`;
+              
+              cleanHTML = cleanHTML.replace(pMatch, pMatch + imageHTML);
+              inserted = true;
+              insertedCount++;
+              console.log(`✅ Inserted image after paragraph #${i + 1}`);
+            }
+          }
+          
+          // Strategy 4: Insert before closing </body> tag
+          if (!inserted) {
+            if (cleanHTML.includes('</body>')) {
+              const imageHTML = `
+              <div style="text-align: center; margin: 2rem 0;">
+                <img src="${imageUrl}" alt="Additional Image ${i + 1}" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); margin: 1.5rem 0; display: block; object-fit: cover;" onerror="this.style.display='none';" />
+              </div>`;
+              
+              cleanHTML = cleanHTML.replace('</body>', imageHTML + '</body>');
+              inserted = true;
+              insertedCount++;
+              console.log(`✅ Inserted image before closing body tag`);
+            }
+          }
+          
+          if (!inserted) {
+            console.log(`❌ Could not find suitable location for image ${i + 1}`);
+          }
+        }
+        
+        console.log(`🖼️ Strategic insertion complete. Inserted ${insertedCount} images`);
+      }
+      
+      // Handle videos
+      cleanHTML = cleanHTML.replace(/VIDEO_PLACEHOLDER/g, () => {
+        const videoUrl = videoData[videoIndex];
+        videoIndex++;
+        
+        if (videoUrl) {
+          return `<video controls style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.12); margin: 1.5rem 0; display: block;"><source src="${videoUrl}" type="video/mp4">Your browser does not support the video tag.</video>`;
+        } else {
+          return `<div style="width: 100%; height: 200px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1rem; font-weight: 500; margin: 1.5rem 0;">🎥 Video</div>`;
+        }
+      });
+      
+      // Ensure it starts with <!DOCTYPE html>
+      if (!cleanHTML.startsWith('<!DOCTYPE html>')) {
+        cleanHTML = `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -1028,27 +1073,50 @@ ${imageData.length > 0 ? `
     </div>
 </body>
 </html>`;
-    }
+      }
 
-    return cleanHTML;
-    
+      return cleanHTML;
+      
+    } catch (error: unknown) {
+      console.error('❌ Anthropic API Error:', error);
+      console.error('📊 Error details:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        name: error instanceof Error ? error.name : 'Unknown',
+        stack: error instanceof Error ? error.stack : undefined
+      });
+      
+      // Check if it's a credit/API key issue
+      if (error instanceof Error && error.message.includes('credit balance')) {
+        console.error('💰 CREDIT ISSUE: Your Anthropic account needs credits');
+        throw new Error('Anthropic API credits required. Please add credits to your account.');
+      }
+      
+      // Check if it's an API key issue
+      if (error instanceof Error && (error.message.includes('401') || error.message.includes('403'))) {
+        console.error('🔑 API KEY ISSUE: Invalid or missing Anthropic API key');
+        throw new Error('Invalid Anthropic API key. Please check your ANTHROPIC_API_KEY environment variable.');
+      }
+      
+      // Check if it's a rate limit issue
+      if (error instanceof Error && error.message.includes('429')) {
+        console.error('⏱️ RATE LIMIT: Too many requests to Anthropic API');
+        throw new Error('Rate limit exceeded. Please wait a moment and try again.');
+      }
+      
+      console.log('🔄 Falling back to basic HTML generation...');
+      
+      // Convert imageData to the format expected by createFallbackHTML
+      const fallbackImages = (imageData && Array.isArray(imageData) ? imageData : []).map(url => ({ url, caption: 'Document Image' }));
+      
+      // Create a basic fallback HTML
+      const fallbackHTML = createFallbackHTML(documentData, contentString, fallbackImages, safeSettings);
+      
+      console.log('✅ Fallback HTML generated successfully');
+      return fallbackHTML;
+    }
   } catch (error) {
-    console.error('Anthropic API Error:', error);
-    console.error('Error details:', {
-      message: error instanceof Error ? error.message : 'Unknown error',
-      name: error instanceof Error ? error.name : 'Unknown',
-      stack: error instanceof Error ? error.stack : undefined
-    });
-    
-    console.log('Document data:', {
-      contentLength: contentString.length,
-      promptLength: (systemPrompt + userPrompt).length
-    });
-    
-    console.log('AI generation failed, trying fallback approach...');
-    
-    // Fallback: Create a simple but beautiful HTML page
-    return createFallbackHTML(documentData, contentString, [], settings);
+    console.error('❌ Error generating AI website:', error);
+    return 'An error occurred while generating the AI website.';
   }
 }
 
