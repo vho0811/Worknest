@@ -20,7 +20,6 @@ export interface AIWebsiteSettings {
   navigationItems?: string[]; // Array of navigation item titles
   autoGenerateImages?: boolean; // New: Auto-generate images when none provided
   enhanceContent?: boolean; // New: Automatically enhance content
-  addIcons?: boolean; // New: Add relevant icons
 }
 
 // New: Enhanced content analysis for proactive suggestions
@@ -83,52 +82,89 @@ IMAGE3: [specific description for supporting image]`
     // Generate relevant images based on content analysis
     const images = [];
     
-    // Hero image (first image)
-    if (contentType.includes('ecommerce') || industry.includes('retail')) {
-      images.push('https://images.unsplash.com/photo-1441986300917-64674bd600d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'); // Shopping
-    } else if (contentType.includes('portfolio') || industry.includes('creative')) {
-      images.push('https://images.unsplash.com/photo-1541961017774-22349e4a1262?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'); // Creative work
-    } else if (contentType.includes('tech') || industry.includes('technology')) {
-      images.push('https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'); // Tech
-    } else if (contentType.includes('food') || industry.includes('restaurant')) {
-      images.push('https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'); // Food
-    } else if (contentType.includes('fitness') || industry.includes('health')) {
-      images.push('https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'); // Fitness
-    } else if (contentType.includes('education') || industry.includes('learning')) {
-      images.push('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'); // Education
-    } else {
-      images.push('https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'); // Business
+    // Use the AI's specific descriptions to generate more relevant images
+    console.log(`🎯 Using AI analysis: ${contentType} in ${industry} industry`);
+    console.log(`🖼️ AI suggested images: ${image1}, ${image2}, ${image3}`);
+    
+    // Create more diverse and relevant image URLs based on the AI's analysis
+    const imageMap = {
+      // Ecommerce/Retail
+      'shopping': 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      'products': 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      'retail': 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      'ecommerce': 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      
+      // Creative/Portfolio
+      'creative': 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      'design': 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      'art': 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      'portfolio': 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      
+      // Technology
+      'tech': 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      'technology': 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      'coding': 'https://images.unsplash.com/photo-1518186285589-2f7649de83e0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      'development': 'https://images.unsplash.com/photo-1518186285589-2f7649de83e0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      
+      // Food/Restaurant
+      'food': 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      'restaurant': 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      'cooking': 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      
+      // Fitness/Health
+      'fitness': 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      'health': 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      'workout': 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      
+      // Education/Learning
+      'education': 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      'learning': 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      'students': 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      
+      // Business/Professional
+      'business': 'https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      'office': 'https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      'meeting': 'https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      'team': 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      
+      // Default fallbacks
+      'default': 'https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+    };
+    
+    // Function to find the best matching image based on description
+    function findBestImage(description: string): string {
+      const desc = description.toLowerCase();
+      
+      // Check for specific keywords in the description
+      for (const [keyword, url] of Object.entries(imageMap)) {
+        if (desc.includes(keyword)) {
+          console.log(`🎯 Matched "${keyword}" for description: "${description}"`);
+          return url;
+        }
+      }
+      
+      // If no specific match, use content type
+      if (contentType.includes('ecommerce') || industry.includes('retail')) {
+        return imageMap.shopping;
+      } else if (contentType.includes('portfolio') || industry.includes('creative')) {
+        return imageMap.creative;
+      } else if (contentType.includes('tech') || industry.includes('technology')) {
+        return imageMap.tech;
+      } else if (contentType.includes('food') || industry.includes('restaurant')) {
+        return imageMap.food;
+      } else if (contentType.includes('fitness') || industry.includes('health')) {
+        return imageMap.fitness;
+      } else if (contentType.includes('education') || industry.includes('learning')) {
+        return imageMap.education;
+      } else {
+        return imageMap.default;
+      }
     }
     
-    // Content image (second image)
-    if (contentType.includes('ecommerce')) {
-      images.push('https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'); // Products
-    } else if (contentType.includes('portfolio')) {
-      images.push('https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'); // Design work
-    } else if (contentType.includes('tech')) {
-      images.push('https://images.unsplash.com/photo-1518186285589-2f7649de83e0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'); // Coding
-    } else if (contentType.includes('food')) {
-      images.push('https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'); // Cooking
-    } else if (contentType.includes('fitness')) {
-      images.push('https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'); // Workout
-    } else {
-      images.push('https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'); // Office
-    }
-    
-    // Supporting image (third image)
-    if (contentType.includes('ecommerce')) {
-      images.push('https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'); // More products
-    } else if (contentType.includes('portfolio')) {
-      images.push('https://images.unsplash.com/photo-1541961017774-22349e4a1262?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'); // Creative process
-    } else if (contentType.includes('tech')) {
-      images.push('https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'); // Development
-    } else if (contentType.includes('food')) {
-      images.push('https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'); // Food prep
-    } else if (contentType.includes('fitness')) {
-      images.push('https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'); // Training
-    } else {
-      images.push('https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'); // Team
-    }
+    // Generate images based on AI descriptions
+    images.push(findBestImage(image1)); // Hero image
+    images.push(findBestImage(image2)); // Content image  
+    images.push(findBestImage(image3)); // Supporting image
     
     return images;
   } catch (error) {
@@ -245,22 +281,7 @@ Return the enhanced content with better structure and engagement.`
   }
 }
 
-// New: Generate relevant icons
-function generateIconsForContent(content: string, analysis: ContentAnalysis): string[] {
-  const icons = {
-    business: ['💼', '📊', '🎯', '📈', '🤝'],
-    creative: ['🎨', '✨', '🚀', '💡', '🌟'],
-    technical: ['⚡', '🔧', '💻', '🔬', '📱'],
-    personal: ['👤', '💝', '📖', '🎭', '🌱'],
-    ecommerce: ['🛒', '💰', '📦', '🏷️', '🛍️'],
-    portfolio: ['📸', '🎬', '🎵', '✍️', '🎪'],
-    blog: ['📝', '📚', '💭', '🔍', '📖'],
-    landing: ['🎯', '🚀', '💎', '⭐', '🔥']
-  };
 
-  const contentType = analysis.contentType as keyof typeof icons;
-  return icons[contentType] || icons.business;
-}
 
 export async function generateAIWebsite(
   documentData: DocumentData,
@@ -300,7 +321,6 @@ export async function generateAIWebsite(
   // NEW: Proactive content enhancement
   let enhancedContent = contentString;
   let contentAnalysis: ContentAnalysis | null = null;
-  let generatedIcons: string[] = [];
   
   if (settings.enhanceContent !== false) {
     console.log('🔍 Analyzing content proactively...');
@@ -310,10 +330,7 @@ export async function generateAIWebsite(
     enhancedContent = await enhanceContentWithAI(contentString, contentAnalysis);
     console.log('✨ Content enhanced');
     
-    if (settings.addIcons !== false) {
-      generatedIcons = generateIconsForContent(contentString, contentAnalysis);
-      console.log('🎨 Generated icons:', generatedIcons);
-    }
+
   }
   
   // NEW: Auto-generate images if none provided and setting is enabled
@@ -490,180 +507,114 @@ export async function generateAIWebsite(
   }
 
   // Create an intelligent, comprehensive prompt for world-class website generation
-  const systemPrompt = `You are an elite full-stack developer and UX designer with 15+ years of experience creating award-winning websites. You specialize in translating any content into stunning, modern websites that rival the best agencies.
+  const systemPrompt = `You are a pixel-perfect web developer who creates production-ready websites with EXACT spacing, typography, and layout. Every element must be positioned with mathematical precision.
 
-CORE EXPERTISE:
-- Modern web design principles and latest UI/UX trends
-- Advanced CSS techniques (Grid, Flexbox, animations, micro-interactions)
-- Accessibility (WCAG 2.1 AA compliance)
-- Performance optimization and mobile-first design
-- Brand-aligned color psychology and typography
-- Conversion-focused layouts and user flows
+CRITICAL REQUIREMENTS:
+- Generate ONLY complete HTML with embedded CSS
+- NO explanations, markdown, or code blocks
+- Self-contained file that works immediately
+- Pixel-perfect spacing and typography
+- Responsive design (320px to 2560px)
+- Cross-browser compatible CSS
 
-DESIGN PHILOSOPHY:
-Create websites that are not just functional, but emotionally engaging and memorable. Every element should serve a purpose and contribute to the overall user experience.
+PIXEL-PERFECT STYLING STANDARDS:
 
-OUTPUT REQUIREMENTS:
-- Generate ONLY complete, production-ready HTML with embedded CSS
-- NO explanations, markdown formatting, or code blocks
-- Self-contained file that works immediately when opened
-- Include proper meta tags, responsive design, and accessibility features
-- PRESERVE ALL IMAGES: When you see image markers, create <img> tags with src="IMAGE_PLACEHOLDER"
+TYPOGRAPHY:
+- Font sizes: 16px base, 24px h1, 20px h2, 18px h3, 14px small
+- Line heights: 1.5 for body, 1.2 for headings
+- Font weights: 400 normal, 600 semibold, 700 bold
+- Letter spacing: -0.025em for headings, 0 for body
+- Font stack: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif
 
-TECHNICAL STANDARDS:
-- Semantic HTML5 structure
-- Modern CSS with custom properties (CSS variables)
-- Responsive design that works on all devices (320px to 2560px)
-- Smooth animations and micro-interactions
-- Optimized performance (minimal CSS, efficient selectors)
-- Cross-browser compatibility
+SPACING SYSTEM:
+- 4px base unit (0.25rem)
+- Margins: 16px (1rem), 24px (1.5rem), 32px (2rem), 48px (3rem), 64px (4rem)
+- Padding: 16px (1rem), 24px (1.5rem), 32px (2rem), 48px (3rem)
+- Gaps: 16px (1rem), 24px (1.5rem), 32px (2rem)
 
-VISUAL DESIGN EXCELLENCE:
-- Professional typography hierarchy with perfect spacing
-- Sophisticated color schemes with proper contrast ratios
-- Modern layout patterns (cards, grids, hero sections)
-- Subtle shadows, gradients, and visual depth
-- Consistent design system throughout
-- White space as a design element
+LAYOUT STRUCTURE:
+- Max-width: 1200px for desktop
+- Container padding: 24px on mobile, 48px on desktop
+- Section spacing: 64px between sections
+- Card padding: 24px
+- Button padding: 12px 24px
 
-ADVANCED FEATURES TO INCLUDE:
-- Smooth scroll animations and parallax effects
-- Hover states and interactive elements
-- Loading animations and transitions
-- Mobile-optimized touch interactions
-- Proper focus states for accessibility
-- SEO-optimized structure
+COLOR SYSTEM:
+- Primary: #2563eb (blue-600)
+- Secondary: #64748b (slate-500)
+- Accent: #f59e0b (amber-500)
+- Text: #1e293b (slate-800)
+- Background: #ffffff
+- Gray: #f1f5f9 (slate-100), #e2e8f0 (slate-200), #cbd5e1 (slate-300)
 
-CONTENT INTELLIGENCE:
-Analyze the provided content and automatically:
-- Extract key themes and create appropriate sections
-- Generate compelling headlines and CTAs
-- Organize information in logical flow
-- Create navigation based on content structure
-- Add relevant icons and visual elements
-- **CRITICAL**: Convert ALL image markers ([IMAGE:...], IMAGE_PLACEHOLDER) into proper <img> tags
+COMPONENT SPECIFICATIONS:
 
-IMAGE HANDLING RULES:
-1. When you see [IMAGE: something] → create: <img src="IMAGE_PLACEHOLDER" alt="Document Image">
-2. When you see IMAGE_PLACEHOLDER → create: <img src="IMAGE_PLACEHOLDER" alt="Document Image">  
-3. NEVER ignore image markers - they represent real user images
-4. Always include proper responsive styling for images
-5. Place images logically within the content flow
+HERO SECTION:
+- Height: 400px minimum, 600px preferred
+- Background: gradient or solid color
+- Text: centered, large heading (48px+)
+- CTA button: prominent, 16px padding, rounded corners
 
-🎨 ADVANCED IMAGE PLACEMENT & STYLING:
-- STRATEGIC PLACEMENT: Place images where they have maximum visual impact
-- HERO IMAGES: Use first/main images as large hero elements (width: 100%, height: 400-600px)
-- CONTENT IMAGES: Embed images within text with proper margins and flow
-- GALLERY STYLE: Multiple images should be in responsive grids
-- SIZING STRATEGY: Vary image sizes based on importance and content context
-- VISUAL HIERARCHY: Larger images for key concepts, smaller for supporting content
-- RESPONSIVE DESIGN: Images must work perfectly on mobile (max-width: 100%)
-- PROFESSIONAL STYLING: Add shadows, borders, and modern CSS effects
-- CONTEXTUAL POSITIONING: Float images left/right with text wrap when appropriate
-- BREATHING ROOM: Always include generous margins around images
+NAVIGATION:
+- Height: 64px
+- Padding: 0 24px
+- Logo: 32px height
+- Links: 16px font, 24px spacing
 
-CSS STYLING FOR IMAGES:
-- Use object-fit: cover for consistent aspect ratios
-- Add border-radius for modern appearance (8-16px)
-- Include subtle box-shadows for depth
-- Implement hover effects where appropriate
-- Ensure proper spacing with margin/padding
-- Consider image overlays or captions when relevant
+CARDS:
+- Border radius: 12px
+- Box shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1)
+- Padding: 24px
+- Margin: 16px between cards
 
-STYLE ADAPTATION:
-Based on content type, automatically apply:
-- Business/Corporate: Clean, professional, trust-building
-- Creative/Portfolio: Bold, artistic, visually striking
-- Blog/Content: Reader-friendly, typography-focused
-- Product/SaaS: Conversion-optimized, feature-focused
-- Personal: Warm, authentic, story-driven
+IMAGES:
+- Border radius: 12px
+- Box shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1)
+- Max-width: 100%
+- Height: auto
+- Margin: 24px top/bottom
 
-Remember: You're not just coding a website, you're crafting a digital experience that tells a story and drives action. ALWAYS preserve user images by converting markers to <img> tags.
+BUTTONS:
+- Padding: 12px 24px
+- Border radius: 8px
+- Font weight: 600
+- Hover: scale(1.05), transition: 0.2s
 
-🏆 LEGENDARY WEBSITE CREATION MASTERY:
-You are not just a developer - you are a digital architect, brand storyteller, and conversion wizard rolled into one. Your websites don't just look good, they create emotional connections and drive results.
+RESPONSIVE BREAKPOINTS:
+- Mobile: < 768px
+- Tablet: 768px - 1024px
+- Desktop: > 1024px
 
-🎯 PSYCHOLOGICAL DESIGN PRINCIPLES:
-- COGNITIVE LOAD THEORY: Reduce mental effort through clear information hierarchy
-- COLOR PSYCHOLOGY: Use colors that evoke specific emotions aligned with content purpose
-- VISUAL ANCHORING: Create focal points that guide attention to key messages
-- SOCIAL PROOF INTEGRATION: Naturally weave in credibility signals
-- SCARCITY & URGENCY: Subtle design cues that encourage action
-- TRUST BUILDING: Visual elements that establish immediate credibility
+MOBILE OPTIMIZATION:
+- Single column layout
+- 16px padding on containers
+- 24px spacing between sections
+- Touch-friendly buttons (44px minimum)
 
-⚡ MICRO-INTERACTION MASTERY:
-- HOVER SYMPHONIES: Every element responds to user interaction with purposeful animations
-- SCROLL CHOREOGRAPHY: Content reveals itself through engaging scroll-triggered animations
-- LOADING POETRY: Transform loading states into delightful micro-experiences
-- CLICK FEEDBACK: Immediate visual/tactile responses to all user actions
-- GESTURE FLUIDITY: Touch interactions feel natural and responsive
+CSS VARIABLES:
+Use CSS custom properties for consistency:
+:root {
+  --primary: #2563eb;
+  --secondary: #64748b;
+  --text: #1e293b;
+  --background: #ffffff;
+  --spacing-xs: 8px;
+  --spacing-sm: 16px;
+  --spacing-md: 24px;
+  --spacing-lg: 32px;
+  --spacing-xl: 48px;
+  --border-radius: 12px;
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
 
-🎨 VISUAL STORYTELLING GENIUS:
-- NARRATIVE FLOW: Content progression tells a compelling story from hero to CTA
-- EMOTIONAL JOURNEY: Visual design guides users through specific emotional states
-- BRAND PERSONALITY: Every design choice reflects and amplifies brand character
-- VISUAL METAPHORS: Use design elements that reinforce content meaning
-- MEMORABLE MOMENTS: Create "wow" moments that users remember and share
+IMAGE HANDLING:
+- Convert IMAGE_PLACEHOLDER to <img> tags
+- Use proper alt text
+- Responsive sizing
+- Professional styling
 
-🔥 CONVERSION OPTIMIZATION SECRETS:
-- EYE-TRACKING OPTIMIZATION: Layout follows natural reading patterns (F-pattern, Z-pattern)
-- FRICTION ELIMINATION: Remove every possible barrier between user and desired action
-- PROGRESSIVE DISCLOSURE: Reveal information in perfect sequence to build desire
-- ANCHOR PRICING: Visual presentation that influences decision-making
-- LOSS AVERSION: Design elements that create fear of missing out
-- SOCIAL VALIDATION: Visual cues that show others have taken action
-
-🚀 TECHNICAL WIZARDRY:
-- 60FPS SMOOTHNESS: All animations run at perfect 60fps
-- LIGHTHOUSE PERFECTION: 100% scores on performance, accessibility, SEO
-- CORE WEB VITALS: Optimized LCP, FID, CLS for Google ranking
-- PREFETCHING INTELLIGENCE: Anticipate user needs with smart resource loading
-- PROGRESSIVE ENHANCEMENT: Works flawlessly even on old browsers
-- ACCESSIBILITY EXCELLENCE: WCAG 2.1 AAA compliance with beautiful execution
-
-💎 ENTERPRISE-GRADE POLISH:
-- PIXEL-PERFECT PRECISION: Every element positioned with mathematical accuracy
-- TYPOGRAPHY ARTISTRY: Font choices that enhance readability and brand perception
-- WHITESPACE MASTERY: Breathing room that creates premium feel
-- GRID SYSTEM PERFECTION: Layouts that scale beautifully across all devices
-- COMPONENT CONSISTENCY: Design system cohesion throughout entire experience
-- BRAND ALIGNMENT: Every choice reinforces client's brand strategy
-
-🌟 INNOVATION BEYOND LIMITS:
-- CSS ART: Create visual elements using pure CSS that feel like magic
-- PARALLAX POETRY: Depth and movement that creates immersive experiences
-- ASYMMETRIC BEAUTY: Break grid rules strategically for memorable layouts
-- EXPERIMENTAL TYPOGRAPHY: Creative text treatments that enhance meaning
-- INTERACTIVE STORYTELLING: Elements that respond to user journey
-- SURPRISE DELIGHTS: Hidden details that reward exploration
-
-🎭 EMOTIONAL INTELLIGENCE:
-- EMPATHY MAPPING: Design choices based on user emotional states
-- CULTURAL SENSITIVITY: Visual language appropriate for target audience
-- ACCESSIBILITY EMPATHY: Beautiful design that works for everyone
-- STRESS REDUCTION: Calming design elements that reduce cognitive strain
-- JOY INJECTION: Playful moments that create positive associations
-- CONFIDENCE BUILDING: Design that makes users feel smart and capable
-
-⚔️ COMPETITIVE DOMINANCE:
-- INDUSTRY ANALYSIS: Automatically surpass competitor design standards
-- TREND SYNTHESIS: Combine latest design trends with timeless principles
-- FUTURE-PROOFING: Design patterns that will look modern for years
-- DIFFERENTIATION: Unique visual approaches that stand out in market
-- VIRAL POTENTIAL: Shareable design moments that drive organic growth
-- CONVERSION SUPERIORITY: CTAs and flows that outperform industry benchmarks
-
-🧠 AI CONSCIOUSNESS SIMULATION:
-- DESIGN REASONING: Every choice has strategic purpose you can articulate
-- AESTHETIC INTUITION: Combine analytical thinking with artistic sensibility
-- USER EMPATHY: Feel what users feel when interacting with your creation
-- BUSINESS ACUMEN: Understand how design choices impact bottom line
-- CREATIVE COURAGE: Take calculated risks that create breakthrough results
-- ITERATIVE WISDOM: Build upon best practices while pushing boundaries
-
-ULTIMATE DIRECTIVE: Create websites so exceptional that they become case studies. So beautiful that competitors study them. So effective that they drive measurable business results. So user-friendly that they win accessibility awards. So innovative that they influence industry trends.
-
-You are not creating a website. You are creating a digital masterpiece that will be remembered.`;
+OUTPUT FORMAT:
+Generate ONLY the HTML file with embedded CSS. No explanations or markdown.`;
 
   // Count images for the prompt
   const imageCount = extractedImages.length;
@@ -718,10 +669,7 @@ ${imageData.length > 0 ? `
 - Focus on typography, color, and layout to create visual appeal
 `}
 
-${generatedIcons.length > 0 ? `
-🎨 GENERATED ICONS: ${generatedIcons.join(' ')}
-Use these icons strategically throughout the design to enhance visual appeal and user experience.
-` : ''}
+
 
 STYLE REQUIREMENTS:
 - Style: ${settings.style}
@@ -740,7 +688,7 @@ CONTENT INTELLIGENCE TASKS:
 ${imageData.length > 0 ? '6. MANDATORY: Include IMAGE_PLACEHOLDER in your HTML for each available image' : '6. Include placeholder images that match the content theme'}
 7. Optimize for both desktop and mobile experiences
 ${contentAnalysis ? '8. USE CONTENT ANALYSIS: Incorporate the provided analysis insights into the design' : ''}
-${generatedIcons.length > 0 ? '9. INTEGRATE ICONS: Use the generated icons strategically throughout the design' : ''}
+
 ${imageData.length > 0 ? '10. CRITICAL: You MUST include <img src="IMAGE_PLACEHOLDER"> tags in your HTML output' : ''}
 
 ADVANCED DESIGN REQUIREMENTS:

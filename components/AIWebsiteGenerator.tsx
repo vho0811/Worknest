@@ -64,7 +64,6 @@ export default function AIWebsiteGenerator() {
     navigationItems: ['Home', 'About', 'Contact'], // Default navigation items
     autoGenerateImages: true, // New: Auto-generate images when none provided
     enhanceContent: true, // New: Automatically enhance content
-    addIcons: true, // New: Add relevant icons
   });
 
   const [analysis, setAnalysis] = useState<{
@@ -414,11 +413,7 @@ export default function AIWebsiteGenerator() {
                 🖼️ AI will generate relevant images if none are found
               </p>
             )}
-            {settings.addIcons && (
-              <p className="text-sm text-purple-600 dark:text-purple-400 mt-1">
-                🎨 AI will add relevant icons based on content analysis
-              </p>
-            )}
+
           </div>
 
           {/* AI Analysis Section */}
@@ -598,19 +593,7 @@ export default function AIWebsiteGenerator() {
                   />
                 </div>
 
-                <div className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-lg border border-purple-200 dark:border-purple-700">
-                  <div>
-                    <Label htmlFor="addIcons" className="font-medium">Add Smart Icons</Label>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Include relevant icons based on content analysis and theme</p>
-                  </div>
-                  <Switch
-                    id="addIcons"
-                    checked={settings.addIcons}
-                    onCheckedChange={(checked: boolean) => 
-                      setSettings({ ...settings, addIcons: checked })
-                    }
-                  />
-                </div>
+
               </div>
             </div>
 
