@@ -13,11 +13,253 @@ export interface DocumentData {
 
 export interface AIWebsiteSettings {
   style: 'modern' | 'minimal' | 'professional' | 'creative' | 'blog';
-  colorScheme: 'blue' | 'purple' | 'green' | 'orange' | 'dark' | 'monochrome' | 'sunset' | 'ocean' | 'forest';
+  colorScheme: 'blue' | 'purple' | 'green' | 'orange' | 'teal' | 'rose' | 'amber' | 'slate' | 'gradient';
   includeNavigation?: boolean;
   includeTOC?: boolean;
   customInstructions?: string;
   navigationItems?: string[]; // Array of navigation item titles
+  autoGenerateImages?: boolean; // New: Auto-generate images when none provided
+  enhanceContent?: boolean; // New: Automatically enhance content
+  addIcons?: boolean; // New: Add relevant icons
+}
+
+// New: Enhanced content analysis for proactive suggestions
+interface ContentAnalysis {
+  contentType: 'business' | 'creative' | 'technical' | 'personal' | 'ecommerce' | 'portfolio' | 'blog' | 'landing';
+  targetAudience: string;
+  keyThemes: string[];
+  suggestedSections: string[];
+  callToActions: string[];
+  visualElements: string[];
+  tone: 'professional' | 'casual' | 'friendly' | 'authoritative' | 'creative';
+  industry: string;
+}
+
+// New: Generate images using AI
+async function generateAIImages(content: string, count: number = 3): Promise<string[]> {
+  try {
+    // Analyze content to determine the most relevant image types
+    const response = await anthropic.messages.create({
+      model: "claude-3-5-sonnet-20241022",
+      max_tokens: 800,
+      temperature: 0.3,
+      messages: [
+        {
+          role: "user",
+          content: `Analyze this content and determine the most relevant image types for a website:
+
+Content: ${content.substring(0, 1500)}
+
+Based on the content, provide:
+1. Content type (business, ecommerce, portfolio, blog, etc.)
+2. Primary industry/theme
+3. Target audience
+4. 3 specific image descriptions that would be most relevant
+
+Return in this exact format:
+CONTENT_TYPE: [type]
+INDUSTRY: [industry]
+AUDIENCE: [audience]
+IMAGE1: [specific description for hero image]
+IMAGE2: [specific description for content image]
+IMAGE3: [specific description for supporting image]`
+        }
+      ]
+    });
+
+    const analysis = response.content[0]?.type === 'text' ? response.content[0].text : '';
+    
+    // Parse the analysis
+    const lines = analysis.split('\n').filter(line => line.trim());
+    const contentType = lines.find(line => line.startsWith('CONTENT_TYPE:'))?.split(':')[1]?.trim() || 'business';
+    const industry = lines.find(line => line.startsWith('INDUSTRY:'))?.split(':')[1]?.trim() || 'general';
+    const image1 = lines.find(line => line.startsWith('IMAGE1:'))?.split(':')[1]?.trim() || 'professional business meeting';
+    const image2 = lines.find(line => line.startsWith('IMAGE2:'))?.split(':')[1]?.trim() || 'modern office workspace';
+    const image3 = lines.find(line => line.startsWith('IMAGE3:'))?.split(':')[1]?.trim() || 'team collaboration';
+    
+    console.log(`🎯 Content analysis: ${contentType} in ${industry} industry`);
+    console.log(`🖼️ Image descriptions: ${image1}, ${image2}, ${image3}`);
+    
+    // Generate relevant images based on content analysis
+    const images = [];
+    
+    // Hero image (first image)
+    if (contentType.includes('ecommerce') || industry.includes('retail')) {
+      images.push('https://images.unsplash.com/photo-1441986300917-64674bd600d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'); // Shopping
+    } else if (contentType.includes('portfolio') || industry.includes('creative')) {
+      images.push('https://images.unsplash.com/photo-1541961017774-22349e4a1262?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'); // Creative work
+    } else if (contentType.includes('tech') || industry.includes('technology')) {
+      images.push('https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'); // Tech
+    } else if (contentType.includes('food') || industry.includes('restaurant')) {
+      images.push('https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'); // Food
+    } else if (contentType.includes('fitness') || industry.includes('health')) {
+      images.push('https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'); // Fitness
+    } else if (contentType.includes('education') || industry.includes('learning')) {
+      images.push('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'); // Education
+    } else {
+      images.push('https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'); // Business
+    }
+    
+    // Content image (second image)
+    if (contentType.includes('ecommerce')) {
+      images.push('https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'); // Products
+    } else if (contentType.includes('portfolio')) {
+      images.push('https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'); // Design work
+    } else if (contentType.includes('tech')) {
+      images.push('https://images.unsplash.com/photo-1518186285589-2f7649de83e0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'); // Coding
+    } else if (contentType.includes('food')) {
+      images.push('https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'); // Cooking
+    } else if (contentType.includes('fitness')) {
+      images.push('https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'); // Workout
+    } else {
+      images.push('https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'); // Office
+    }
+    
+    // Supporting image (third image)
+    if (contentType.includes('ecommerce')) {
+      images.push('https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'); // More products
+    } else if (contentType.includes('portfolio')) {
+      images.push('https://images.unsplash.com/photo-1541961017774-22349e4a1262?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'); // Creative process
+    } else if (contentType.includes('tech')) {
+      images.push('https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'); // Development
+    } else if (contentType.includes('food')) {
+      images.push('https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'); // Food prep
+    } else if (contentType.includes('fitness')) {
+      images.push('https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'); // Training
+    } else {
+      images.push('https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'); // Team
+    }
+    
+    return images;
+  } catch (error) {
+    console.error('Failed to generate AI images:', error);
+    // Fallback to generic professional images
+    return [
+      'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=800&h=600&fit=crop'
+    ];
+  }
+}
+
+// New: Enhanced content analysis
+async function analyzeContentProactively(content: string): Promise<ContentAnalysis> {
+  try {
+    const response = await anthropic.messages.create({
+      model: "claude-3-5-sonnet-20241022",
+      max_tokens: 800,
+      temperature: 0.3,
+      messages: [
+        {
+          role: "user",
+          content: `Analyze this content and provide comprehensive insights for website design:
+
+Content: ${content.substring(0, 2000)}
+
+Provide analysis in this exact JSON format:
+{
+  "contentType": "business|creative|technical|personal|ecommerce|portfolio|blog|landing",
+  "targetAudience": "description of target audience",
+  "keyThemes": ["theme1", "theme2", "theme3"],
+  "suggestedSections": ["section1", "section2", "section3"],
+  "callToActions": ["cta1", "cta2"],
+  "visualElements": ["element1", "element2"],
+  "tone": "professional|casual|friendly|authoritative|creative",
+  "industry": "industry name"
+}
+
+Focus on actionable insights that can improve the website design and user experience.`
+        }
+      ]
+    });
+
+    const analysis = response.content[0]?.type === 'text' ? response.content[0].text : '';
+    const cleanAnalysis = analysis.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    
+    try {
+      return JSON.parse(cleanAnalysis);
+    } catch (parseError) {
+      console.error('Failed to parse content analysis:', parseError);
+      return {
+        contentType: 'business',
+        targetAudience: 'General audience',
+        keyThemes: ['Professional', 'Quality', 'Service'],
+        suggestedSections: ['Hero', 'About', 'Services'],
+        callToActions: ['Learn More', 'Contact Us'],
+        visualElements: ['Professional imagery', 'Clean design'],
+        tone: 'professional',
+        industry: 'General'
+      };
+    }
+  } catch (error) {
+    console.error('Content analysis failed:', error);
+    return {
+      contentType: 'business',
+      targetAudience: 'General audience',
+      keyThemes: ['Professional', 'Quality', 'Service'],
+      suggestedSections: ['Hero', 'About', 'Services'],
+      callToActions: ['Learn More', 'Contact Us'],
+      visualElements: ['Professional imagery', 'Clean design'],
+      tone: 'professional',
+      industry: 'General'
+    };
+  }
+}
+
+// New: Enhance content with AI
+async function enhanceContentWithAI(content: string, analysis: ContentAnalysis): Promise<string> {
+  try {
+    const response = await anthropic.messages.create({
+      model: "claude-3-5-sonnet-20241022",
+      max_tokens: 1000,
+      temperature: 0.4,
+      messages: [
+        {
+          role: "user",
+          content: `Enhance this content for a website, making it more engaging and professional:
+
+Original Content: ${content.substring(0, 1500)}
+
+Content Analysis:
+- Type: ${analysis.contentType}
+- Target Audience: ${analysis.targetAudience}
+- Key Themes: ${analysis.keyThemes.join(', ')}
+- Tone: ${analysis.tone}
+
+Enhance the content by:
+1. Adding compelling headlines and subheadings
+2. Improving readability and flow
+3. Adding relevant call-to-actions
+4. Making it more engaging for the target audience
+5. Maintaining the original message while making it more web-friendly
+
+Return the enhanced content with better structure and engagement.`
+        }
+      ]
+    });
+
+    return response.content[0]?.type === 'text' ? response.content[0].text : content;
+  } catch (error) {
+    console.error('Content enhancement failed:', error);
+    return content;
+  }
+}
+
+// New: Generate relevant icons
+function generateIconsForContent(content: string, analysis: ContentAnalysis): string[] {
+  const icons = {
+    business: ['💼', '📊', '🎯', '📈', '🤝'],
+    creative: ['🎨', '✨', '🚀', '💡', '🌟'],
+    technical: ['⚡', '🔧', '💻', '🔬', '📱'],
+    personal: ['👤', '💝', '📖', '🎭', '🌱'],
+    ecommerce: ['🛒', '💰', '📦', '🏷️', '🛍️'],
+    portfolio: ['📸', '🎬', '🎵', '✍️', '🎪'],
+    blog: ['📝', '📚', '💭', '🔍', '📖'],
+    landing: ['🎯', '🚀', '💎', '⭐', '🔥']
+  };
+
+  const contentType = analysis.contentType as keyof typeof icons;
+  return icons[contentType] || icons.business;
 }
 
 export async function generateAIWebsite(
@@ -50,10 +292,37 @@ export async function generateAIWebsite(
   contentString = contentString.replace(/"[^"]{5000,}"/g, '"LARGE_DATA_PLACEHOLDER"');
   
   // Store extracted data for post-processing
-  const imageData = extractedImages;
-  const videoData = extractedVideos;
+  let imageData = extractedImages;
+  let videoData = extractedVideos;
   
   console.log(`Content length after filtering: ${contentString.length} characters`);
+  
+  // NEW: Proactive content enhancement
+  let enhancedContent = contentString;
+  let contentAnalysis: ContentAnalysis | null = null;
+  let generatedIcons: string[] = [];
+  
+  if (settings.enhanceContent !== false) {
+    console.log('🔍 Analyzing content proactively...');
+    contentAnalysis = await analyzeContentProactively(contentString);
+    console.log('📊 Content analysis complete:', contentAnalysis);
+    
+    enhancedContent = await enhanceContentWithAI(contentString, contentAnalysis);
+    console.log('✨ Content enhanced');
+    
+    if (settings.addIcons !== false) {
+      generatedIcons = generateIconsForContent(contentString, contentAnalysis);
+      console.log('🎨 Generated icons:', generatedIcons);
+    }
+  }
+  
+  // NEW: Auto-generate images if none provided and setting is enabled
+  if (imageData.length === 0 && settings.autoGenerateImages !== false) {
+    console.log('🖼️ No images found, generating AI images...');
+    const aiGeneratedImages = await generateAIImages(contentString, 3);
+    imageData = [...imageData, ...aiGeneratedImages];
+    console.log('✅ Generated', aiGeneratedImages.length, 'AI images');
+  }
   
   // Debug: Show what's taking up space if still large
   if (contentString.length > 5000) {
@@ -403,31 +672,55 @@ You are not creating a website. You are creating a digital masterpiece that will
   const userPrompt = `Transform this content into a ${settings.style} website with ${settings.colorScheme} color scheme:
 
 CONTENT TO TRANSFORM:
-${contentString}
+${enhancedContent || contentString}
 
-${hasImages ? `
-🖼️ IMPORTANT - IMAGE HANDLING:
-- This content contains ${imageCount} image(s) that were extracted from the document
-- When you see [IMAGE: ...] or IMAGE_PLACEHOLDER in the content, create <img> tags with src="IMAGE_PLACEHOLDER"
+${contentAnalysis ? `
+🎯 PROACTIVE CONTENT ANALYSIS:
+- Content Type: ${contentAnalysis.contentType}
+- Target Audience: ${contentAnalysis.targetAudience}
+- Key Themes: ${contentAnalysis.keyThemes.join(', ')}
+- Suggested Sections: ${contentAnalysis.suggestedSections.join(', ')}
+- Call-to-Actions: ${contentAnalysis.callToActions.join(', ')}
+- Visual Elements: ${contentAnalysis.visualElements.join(', ')}
+- Tone: ${contentAnalysis.tone}
+- Industry: ${contentAnalysis.industry}
+
+Use this analysis to create a more targeted and effective website design.
+` : ''}
+
+${imageData.length > 0 ? `
+🖼️ CRITICAL IMAGE HANDLING (${imageData.length} images available):
+- This content contains ${imageData.length} image(s) that were extracted/generated
+- YOU MUST include IMAGE_PLACEHOLDER in your HTML for each image
+- Use this exact format: <img src="IMAGE_PLACEHOLDER" alt="Document Image" style="max-width: 100%; height: auto; border-radius: 12px; margin: 1.5rem 0; display: block;">
+- Place IMAGE_PLACEHOLDER strategically throughout your HTML
 - These will be automatically replaced with the actual images after generation
-- ALWAYS include <img src="IMAGE_PLACEHOLDER" alt="Document Image" style="max-width: 100%; height: auto; border-radius: 12px; margin: 1.5rem 0; display: block;"> for each image location
-- Do NOT ignore image markers - they represent real images from the user's document
+- DO NOT ignore this instruction - images are essential for the website
 
-🎯 STRATEGIC IMAGE PLACEMENT:
-- ANALYZE CONTENT CONTEXT: Understand what each image represents based on surrounding text
-- HERO PLACEMENT: If first image is important, make it a large hero image (full-width, 500px+ height)
-- CONTENT FLOW: Place images at natural breaks in content for maximum readability
-- VISUAL BALANCE: Distribute images throughout the page for balanced composition
-- SIZE VARIATION: Use different sizes - large for key images, medium for supporting, small for details
-- RESPONSIVE GRIDS: Multiple images should be in elegant grid layouts
-- TEXT INTEGRATION: Sometimes float images left/right with text wrapping for magazine-style layouts
+🎯 MANDATORY IMAGE PLACEMENT:
+- HERO SECTION: Include IMAGE_PLACEHOLDER in the hero/header area
+- CONTENT SECTIONS: Add IMAGE_PLACEHOLDER in main content areas
+- GALLERY: If multiple images, create a gallery with IMAGE_PLACEHOLDER repeated
+- RESPONSIVE: Ensure images work on all devices
+- STYLING: Use modern CSS for beautiful image presentation
 
-💎 PREMIUM IMAGE STYLING:
-- Each image should have unique, thoughtful styling based on its context and importance
-- Use modern CSS techniques: gradients, shadows, transforms, hover effects
-- Create visual hierarchy through sizing and positioning
+💎 IMAGE INTEGRATION REQUIREMENTS:
+- First image should be a hero image (large, prominent)
+- Additional images should be distributed throughout content
+- Use proper alt text and responsive styling
+- Create visual hierarchy with different image sizes
 - Ensure images enhance the overall design narrative
-- Make images feel integrated, not just "dropped in"
+` : `
+🖼️ NO IMAGES DETECTED:
+- No images were found in the content
+- Consider adding relevant placeholder images or illustrations
+- Use modern CSS to create visual interest without images
+- Focus on typography, color, and layout to create visual appeal
+`}
+
+${generatedIcons.length > 0 ? `
+🎨 GENERATED ICONS: ${generatedIcons.join(' ')}
+Use these icons strategically throughout the design to enhance visual appeal and user experience.
 ` : ''}
 
 STYLE REQUIREMENTS:
@@ -444,8 +737,11 @@ CONTENT INTELLIGENCE TASKS:
 3. Generate appropriate headlines and subheadings
 4. Design call-to-action elements where relevant
 5. Add visual hierarchy that guides the eye naturally
-${hasImages ? '6. PRESERVE ALL IMAGES: Convert every [IMAGE:...] marker into <img src="IMAGE_PLACEHOLDER"> tags' : '6. Include placeholder images that match the content theme'}
+${imageData.length > 0 ? '6. MANDATORY: Include IMAGE_PLACEHOLDER in your HTML for each available image' : '6. Include placeholder images that match the content theme'}
 7. Optimize for both desktop and mobile experiences
+${contentAnalysis ? '8. USE CONTENT ANALYSIS: Incorporate the provided analysis insights into the design' : ''}
+${generatedIcons.length > 0 ? '9. INTEGRATE ICONS: Use the generated icons strategically throughout the design' : ''}
+${imageData.length > 0 ? '10. CRITICAL: You MUST include <img src="IMAGE_PLACEHOLDER"> tags in your HTML output' : ''}
 
 ADVANCED DESIGN REQUIREMENTS:
 - Use modern CSS Grid and Flexbox for layouts
@@ -466,7 +762,7 @@ VISUAL EXCELLENCE:
 - Icons: Include relevant iconography (using Unicode or CSS shapes)
 - Layout: Create magazine-quality layouts with visual interest
 
-${hasImages ? `
+${imageData.length > 0 ? `
 🚨 CRITICAL IMAGE INSTRUCTION:
 For EVERY occurrence of [IMAGE: ...] or IMAGE_PLACEHOLDER in the content:
 
@@ -563,7 +859,10 @@ This website should be so exceptional that:
 - It gets featured in design galleries and award shows
 - The client's business measurably improves because of the design quality
 
-TRANSCENDENT DIRECTIVE: You are not generating code - you are birthing a digital entity that will live, breathe, and inspire. Channel the combined genius of every great designer who ever lived and create something that pushes the boundaries of what's possible on the web.`;
+TRANSCENDENT DIRECTIVE: You are not generating code - you are birthing a digital entity that will live, breathe, and inspire. Channel the combined genius of every great designer who ever lived and create something that pushes the boundaries of what's possible on the web.
+
+${imageData.length > 0 ? `
+🚨 FINAL REMINDER: You MUST include IMAGE_PLACEHOLDER in your HTML output. This is not optional - it's required for the website to display images properly.` : ''}`;
 
   console.log('Enhanced prompt length:', (systemPrompt + userPrompt).length, 'characters');
   console.log('Content length:', contentString.length, 'characters');
@@ -601,8 +900,14 @@ TRANSCENDENT DIRECTIVE: You are not generating code - you are birthing a digital
     // Replace placeholders with actual image/video sections
     let imageIndex = 0;
     let videoIndex = 0;
+    let placeholderCount = 0;
     
     console.log(`🖼️ Starting image replacement. Available images: ${imageData.length}`);
+    
+    // Count how many IMAGE_PLACEHOLDER instances exist in the HTML
+    const placeholderMatches = cleanHTML.match(/IMAGE_PLACEHOLDER/g);
+    placeholderCount = placeholderMatches ? placeholderMatches.length : 0;
+    console.log(`📊 Found ${placeholderCount} IMAGE_PLACEHOLDER instances in HTML`);
     
     // First, remove any <img> tags that AI might have generated and replace with placeholders
     cleanHTML = cleanHTML.replace(/<img[^>]*>/g, 'IMAGE_PLACEHOLDER');
@@ -615,21 +920,100 @@ TRANSCENDENT DIRECTIVE: You are not generating code - you are birthing a digital
       
       if (imageUrl) {
         console.log(`✅ Replaced IMAGE_PLACEHOLDER ${imageIndex} with actual image`);
-        return `<img src="${imageUrl}" alt="Document Image" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.12); margin: 1.5rem 0; display: block; object-fit: cover;" />`;
+        return `<img src="${imageUrl}" alt="Document Image" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.12); margin: 1.5rem 0; display: block; object-fit: cover;" onerror="this.style.display='none';" />`;
       } else {
-        return `<div style="width: 100%; height: 200px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1rem; font-weight: 500; margin: 1.5rem 0;">📸 Image</div>`;
+        return ``;
       }
     });
     
     // Also replace any external image URLs that AI might have generated
-    imageIndex = 0; // Reset for external URLs
+    let externalImageIndex = 0;
     cleanHTML = cleanHTML.replace(/src="[^"]*\.(jpg|jpeg|png|gif|webp)"/g, (match: string) => {
-      const imageUrl = imageData[imageIndex];
-      imageIndex++;
+      const imageUrl = imageData[externalImageIndex];
+      externalImageIndex++;
       return imageUrl ? `src="${imageUrl}"` : match;
     });
     
     console.log(`🖼️ Image replacement complete. Used ${imageIndex}/${imageData.length} images`);
+    
+    // NEW: If we have images but none were placed, insert them strategically
+    if (imageData.length > 0 && imageIndex === 0 && placeholderCount === 0) {
+      console.log('🔄 No image placeholders found, inserting images strategically...');
+      
+      let insertedCount = 0;
+      
+      for (let i = 0; i < imageData.length && insertedCount < 3; i++) {
+        const imageUrl = imageData[i];
+        let inserted = false;
+        
+        // Strategy 1: Insert after the first <h1> tag (hero image)
+        if (i === 0 && !inserted) {
+          const h1Match = cleanHTML.match(/<h1[^>]*>.*?<\/h1>/);
+          if (h1Match) {
+            const imageHTML = `
+            <div style="text-align: center; margin: 2rem 0;">
+              <img src="${imageUrl}" alt="Hero Image" style="width: 100%; max-width: 800px; height: 400px; object-fit: cover; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.15); margin: 2rem auto; display: block;" onerror="this.style.display='none';" />
+            </div>`;
+            
+            cleanHTML = cleanHTML.replace(h1Match[0], h1Match[0] + imageHTML);
+            inserted = true;
+            insertedCount++;
+            console.log(`✅ Inserted hero image after H1`);
+          }
+        }
+        
+        // Strategy 2: Insert after the first <h2> tag (content image)
+        if (!inserted) {
+          const h2Matches = cleanHTML.match(/<h2[^>]*>.*?<\/h2>/g);
+          if (h2Matches && h2Matches.length > i) {
+            const h2Match = h2Matches[i]; // Use different H2 for each image
+            const imageHTML = `
+            <div style="text-align: center; margin: 2rem 0;">
+              <img src="${imageUrl}" alt="Content Image ${i + 1}" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 12px 40px rgba(0,0,0,0.12); margin: 1.5rem 0; display: block; object-fit: cover;" onerror="this.style.display='none';" />
+            </div>`;
+            
+            cleanHTML = cleanHTML.replace(h2Match, h2Match + imageHTML);
+            inserted = true;
+            insertedCount++;
+            console.log(`✅ Inserted content image after H2 #${i + 1}`);
+          }
+        }
+        
+        // Strategy 3: Insert after the first <p> tag
+        if (!inserted) {
+          const pMatches = cleanHTML.match(/<p[^>]*>.*?<\/p>/g);
+          if (pMatches && pMatches.length > i) {
+            const pMatch = pMatches[i]; // Use different P for each image
+            const imageHTML = `
+            <div style="text-align: center; margin: 2rem 0;">
+              <img src="${imageUrl}" alt="Featured Image ${i + 1}" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); margin: 1.5rem 0; display: block; object-fit: cover;" onerror="this.style.display='none';" />
+            </div>`;
+            
+            cleanHTML = cleanHTML.replace(pMatch, pMatch + imageHTML);
+            inserted = true;
+            insertedCount++;
+            console.log(`✅ Inserted image after paragraph #${i + 1}`);
+          }
+        }
+        
+        // Strategy 4: Insert before closing </body> tag
+        if (!inserted) {
+          if (cleanHTML.includes('</body>')) {
+            const imageHTML = `
+            <div style="text-align: center; margin: 2rem 0;">
+              <img src="${imageUrl}" alt="Featured Image ${i + 1}" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); margin: 1.5rem 0; display: block; object-fit: cover;" onerror="this.style.display='none';" />
+            </div>`;
+            
+            cleanHTML = cleanHTML.replace('</body>', imageHTML + '</body>');
+            inserted = true;
+            insertedCount++;
+            console.log(`✅ Inserted image before closing body tag`);
+          }
+        }
+      }
+      
+      console.log(`🖼️ Strategic image insertion complete. Inserted ${insertedCount} images`);
+    }
     
     // Handle videos
     cleanHTML = cleanHTML.replace(/VIDEO_PLACEHOLDER/g, () => {

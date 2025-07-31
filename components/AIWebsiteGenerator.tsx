@@ -62,6 +62,9 @@ export default function AIWebsiteGenerator() {
     includeTOC: false,
     customInstructions: '',
     navigationItems: ['Home', 'About', 'Contact'], // Default navigation items
+    autoGenerateImages: true, // New: Auto-generate images when none provided
+    enhanceContent: true, // New: Automatically enhance content
+    addIcons: true, // New: Add relevant icons
   });
 
   const [analysis, setAnalysis] = useState<{
@@ -387,6 +390,10 @@ export default function AIWebsiteGenerator() {
           <DialogDescription className="text-base leading-relaxed">
             Let AI transform your document into a beautiful, professional website. 
             Choose your style and let artificial intelligence handle the design.
+            <br /><br />
+            <span className="text-sm text-blue-600 dark:text-blue-400">
+              💡 Pro Tip: Even with minimal content, the AI can create complete websites by analyzing your text and adding relevant images, icons, and enhanced content automatically.
+            </span>
           </DialogDescription>
         </DialogHeader>
 
@@ -397,6 +404,21 @@ export default function AIWebsiteGenerator() {
             <p className="text-sm text-gray-600 dark:text-gray-400">
               {editor ? "✅ Editor content will be used for generation" : "⚠️ No editor content available"}
             </p>
+            {settings.enhanceContent && (
+              <p className="text-sm text-green-600 dark:text-green-400 mt-2">
+                ✨ AI will enhance your content with better headlines and structure
+              </p>
+            )}
+            {settings.autoGenerateImages && (
+              <p className="text-sm text-blue-600 dark:text-blue-400 mt-1">
+                🖼️ AI will generate relevant images if none are found
+              </p>
+            )}
+            {settings.addIcons && (
+              <p className="text-sm text-purple-600 dark:text-purple-400 mt-1">
+                🎨 AI will add relevant icons based on content analysis
+              </p>
+            )}
           </div>
 
           {/* AI Analysis Section */}
@@ -534,6 +556,61 @@ export default function AIWebsiteGenerator() {
                     setSettings({ ...settings, includeTOC: checked })
                   }
                 />
+              </div>
+            </div>
+
+            {/* Proactive AI Features */}
+            <div className="p-6 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30 rounded-xl border border-purple-200 dark:border-purple-800">
+              <h4 className="text-lg font-semibold flex items-center gap-2 mb-4">
+                <Sparkles className="w-5 h-5 text-purple-600" />
+                Proactive AI Features
+              </h4>
+              <p className="text-sm text-purple-800 dark:text-purple-200 mb-4">
+                Let AI enhance your website automatically with intelligent features. These options make the AI more proactive in creating rich, engaging websites even with minimal content.
+              </p>
+              
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-lg border border-purple-200 dark:border-purple-700">
+                  <div>
+                    <Label htmlFor="enhanceContent" className="font-medium">Enhance Content</Label>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">AI improves your content with better headlines, structure, and engagement</p>
+                  </div>
+                  <Switch
+                    id="enhanceContent"
+                    checked={settings.enhanceContent}
+                    onCheckedChange={(checked: boolean) => 
+                      setSettings({ ...settings, enhanceContent: checked })
+                    }
+                  />
+                </div>
+
+                <div className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-lg border border-purple-200 dark:border-purple-700">
+                  <div>
+                    <Label htmlFor="autoGenerateImages" className="font-medium">Auto-Generate Images</Label>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Create relevant images when none are provided (uses Unsplash API)</p>
+                  </div>
+                  <Switch
+                    id="autoGenerateImages"
+                    checked={settings.autoGenerateImages}
+                    onCheckedChange={(checked: boolean) => 
+                      setSettings({ ...settings, autoGenerateImages: checked })
+                    }
+                  />
+                </div>
+
+                <div className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-lg border border-purple-200 dark:border-purple-700">
+                  <div>
+                    <Label htmlFor="addIcons" className="font-medium">Add Smart Icons</Label>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Include relevant icons based on content analysis and theme</p>
+                  </div>
+                  <Switch
+                    id="addIcons"
+                    checked={settings.addIcons}
+                    onCheckedChange={(checked: boolean) => 
+                      setSettings({ ...settings, addIcons: checked })
+                    }
+                  />
+                </div>
               </div>
             </div>
 

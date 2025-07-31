@@ -1,64 +1,185 @@
-# WorkNest - Collaborative Document Editor
+# WorkNest - AI-Powered Document Collaboration Platform
 
-A real-time collaborative document editor built with React, Next.js, TypeScript, and Liveblocks.
+A modern, real-time collaborative document editor with AI-powered website generation capabilities.
 
-![WorkNest Screenshot](./worknest.png)
-*WorkNest - A modern collaborative document editor with real-time features*
-
-## 🛠️ Tech Stack
-
-- **React 18** - UI library for building interactive user interfaces
-  - Hooks (useState, useEffect, useCallback, useMemo)
-  - Server & Client Components
-  - Context API for state management
-- **Next.js 14** - React framework with App Router
-- **TypeScript** - Type-safe JavaScript
-- **Tailwind CSS** - Utility-first CSS framework
-- **Shadcn/ui** - UI component library
-- **Firebase** - Database, Authentication, Storage
-- **Liveblocks** - Real-time collaboration infrastructure
-- **Yjs** - CRDT for collaborative document editing
-- **BlockNote** - Rich text editor with collaboration
-- **Clerk** - Authentication
-  
 ## ✨ Features
 
-- React-powered UI with optimized rendering
-- Server and client components for improved performance
-- Real-time collaborative document editing
-- User presence and cursor awareness
-- Document translation
-- Document management (create, delete)
-- User invitations
-- Responsive design
+### 🤖 AI Website Generator
+Transform any document into a beautiful, professional website with AI:
 
-## 📝 Getting Started
+- **Multiple Design Styles**: Modern, Minimal, Professional, Creative, Blog
+- **Color Schemes**: 9 different color palettes to match your brand
+- **Proactive AI Features**:
+  - **Auto-Generate Images**: Creates relevant images when none are provided
+  - **Content Enhancement**: AI improves headlines, structure, and engagement
+  - **Smart Icons**: Adds relevant icons based on content analysis
+  - **Content Analysis**: Analyzes your content to suggest optimal design choices
+- **Navigation & TOC**: Optional navigation menus and table of contents
+- **Custom Instructions**: Add specific design requirements
+- **Real-time Preview**: See your website instantly
 
-1. Clone the repository
-2. Install dependencies: `npm install`
-3. Set up environment variables in `.env.local`
-4. Run development server: `npm run dev`
+### 📝 Real-time Collaboration
+- Live collaborative editing with multiple users
+- Real-time cursors and presence indicators
+- Conflict-free editing with operational transformation
+- Rich text editor with formatting options
 
-## 📄 Environment Variables
+### 🔐 Authentication & Security
+- Clerk authentication integration
+- User management and permissions
+- Secure document access control
 
-Create a `.env.local` file with the following:
+### 🎨 Modern UI/UX
+- Beautiful, responsive design
+- Dark/light mode support
+- Intuitive user interface
+- Mobile-friendly design
 
-NEXT_PUBLIC_LIVEBLOCKS_ID=your_liveblocks_key
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_key
-CLERK_SECRET_KEY=your_clerk_secret
-NEXT_PUBLIC_BASE_URL=your_api_url
+## 🚀 Getting Started
 
-## Learn More
+### Prerequisites
+- Node.js 18+ 
+- Firebase project
+- Clerk account
+- Anthropic API key
 
-To learn more about Next.js, take a look at the following resources:
+### Installation
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/worknest.git
+cd worknest
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+2. Install dependencies:
+```bash
+npm install
+```
 
-## Deploy on Vercel
+3. Set up environment variables:
+```bash
+cp .env.example .env.local
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Fill in your environment variables:
+```env
+# Clerk Authentication
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
+CLERK_SECRET_KEY=your_clerk_secret_key
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+# Firebase
+NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+FIREBASE_PRIVATE_KEY=your_firebase_private_key
+FIREBASE_CLIENT_EMAIL=your_firebase_client_email
+
+# Liveblocks
+LIVEBLOCKS_SECRET_KEY=your_liveblocks_secret_key
+
+# Anthropic AI
+ANTHROPIC_API_KEY=your_anthropic_api_key
+```
+
+4. Set up Firebase:
+```bash
+npm run firebase:setup
+```
+
+5. Run the development server:
+```bash
+npm run dev
+```
+
+## 🎯 AI Website Generator Features
+
+### Proactive AI Enhancement
+
+The AI website generator now includes intelligent features that make it more proactive:
+
+#### 🔍 Content Analysis
+- Automatically analyzes your document content
+- Identifies content type, target audience, and key themes
+- Suggests optimal design choices based on content
+- Provides actionable insights for better website design
+
+#### ✨ Content Enhancement
+- Improves headlines and subheadings for better engagement
+- Enhances content structure and readability
+- Adds relevant call-to-actions
+- Makes content more web-friendly while preserving your message
+
+#### 🖼️ Auto-Generate Images
+- Creates relevant images when none are provided
+- Uses AI to analyze content and suggest appropriate imagery
+- Integrates with Unsplash API for high-quality stock photos
+- Places images strategically throughout the website
+
+#### 🎨 Smart Icons
+- Adds relevant icons based on content analysis
+- Different icon sets for different content types (business, creative, technical, etc.)
+- Enhances visual appeal and user experience
+- Icons are strategically placed throughout the design
+
+### How to Use Proactive Features
+
+1. **Enable Proactive Features**: In the AI Website Generator dialog, you'll find a "Proactive AI Features" section with three toggles:
+   - **Enhance Content**: AI improves your content automatically
+   - **Auto-Generate Images**: Creates images when none are provided
+   - **Add Smart Icons**: Includes relevant icons based on content
+
+2. **Minimal Content Works**: You can now create websites with just a few lines of text, and the AI will:
+   - Analyze what you've written
+   - Enhance the content with better structure
+   - Add relevant images and icons
+   - Create a complete, professional website
+
+3. **Example**: Try writing "Create an ecommerce website for selling handmade jewelry" and the AI will:
+   - Analyze it as ecommerce content
+   - Add relevant sections (Products, About, Contact)
+   - Generate jewelry-related images
+   - Include shopping cart and product icons
+   - Create compelling headlines and CTAs
+
+## 🛠️ Technology Stack
+
+- **Frontend**: Next.js 14, React, TypeScript
+- **Styling**: Tailwind CSS, shadcn/ui
+- **Real-time**: Liveblocks
+- **Authentication**: Clerk
+- **Database**: Firebase Firestore
+- **AI**: Anthropic Claude
+- **Editor**: BlockNote
+- **Deployment**: Vercel
+
+## 📁 Project Structure
+
+```
+worknest/
+├── actions/           # Server actions
+├── app/              # Next.js app router
+├── components/       # React components
+├── lib/             # Utility functions
+├── types/           # TypeScript types
+└── public/          # Static assets
+```
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+## 📄 License
+
+MIT License - see LICENSE file for details
+
+## 🆘 Support
+
+For support, please open an issue on GitHub or contact the development team.
+
+---
+
+**WorkNest** - Where documents become websites with AI magic ✨
