@@ -21,6 +21,24 @@ export default function Home() {
           Create collaborative documents with your team and transform them into beautiful websites using AI. 
           Get started by creating a new document to begin collaborating and building.
         </p>
+
+        {/* Product Hunt Badge */}
+        <div className="flex justify-center mb-8">
+          <a 
+            href="https://www.producthunt.com/products/worknest?embed=true&utm_source=badge-featured&utm_medium=badge&utm_source=badge-worknest" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="transition-transform hover:scale-105"
+          >
+            <img 
+              src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=999695&theme=light&t=1753975580173" 
+              alt="WorkNest - Team collaboration meets AI web generation | Product Hunt" 
+              style={{ width: '250px', height: '54px' }} 
+              width="250" 
+              height="54" 
+            />
+          </a>
+        </div>
       </div>
 
       {/* Features */}
