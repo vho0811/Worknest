@@ -298,12 +298,61 @@ export async function generateAIWebsite(
     
     console.log('📋 Settings validated:', safeSettings);
     
-    // Convert document content to string with error handling
+    // Convert document content to string with better preservation
     let contentString: string;
     try {
-      contentString = JSON.stringify(documentData.content, null, 2);
+      // First, try to extract readable content from the document blocks
+      const readableContent = documentData.content.map((block: any) => {
+        if (typeof block === 'string') return block;
+        
+        const { type, content, props } = block;
+        
+        // Extract text content more comprehensively
+        let textContent = '';
+        if (content && Array.isArray(content)) {
+          textContent = content.map((item: any) => {
+            if (typeof item === 'string') return item;
+            if (item.text) return item.text;
+            if (item.content) return item.content;
+            return '';
+          }).join(' ');
+        }
+        
+        // Handle different block types
+        switch (type) {
+          case 'heading':
+            return `# ${textContent}`;
+          case 'paragraph':
+            return textContent;
+          case 'bulletListItem':
+            return `• ${textContent}`;
+          case 'numberedListItem':
+            return `${props?.index || 1}. ${textContent}`;
+          case 'quote':
+            return `> ${textContent}`;
+          case 'image':
+            return `[IMAGE: ${textContent || 'Image'}]`;
+          case 'video':
+            return `[VIDEO: ${textContent || 'Video'}]`;
+          case 'code':
+            return `\`\`\`\n${textContent}\n\`\`\``;
+          case 'table':
+            return `[TABLE: ${textContent}]`;
+          default:
+            return textContent;
+        }
+      }).filter(text => text.trim().length > 0).join('\n\n');
+      
+      // If readable content is substantial, use it; otherwise fall back to JSON
+      if (readableContent.length > 100) {
+        contentString = readableContent;
+        console.log('✅ Using readable content extraction');
+      } else {
+        contentString = JSON.stringify(documentData.content, null, 2);
+        console.log('⚠️ Using JSON fallback for content');
+      }
     } catch (error) {
-      console.error('❌ Error stringifying content:', error);
+      console.error('❌ Error processing content:', error);
       contentString = 'Document content could not be processed';
     }
     
@@ -371,48 +420,26 @@ export async function generateAIWebsite(
       }
     }
     
-    // Much more aggressive content reduction - extract only essential info
-    if (contentString.length > 2000) {
-      console.log('🔍 DEBUG: Large content detected. Creating simplified version...');
+    // Enhanced content processing for larger documents - preserve more content
+    if (contentString.length > 15000) {
+      console.log('🔍 DEBUG: Very large content detected. Creating optimized version while preserving structure...');
       
-      // Extract only the essential content (text, headings, lists)
-      const simplifiedContent = documentData.content.map((block: any) => {
-        if (typeof block === 'string') return block;
-        
-        const { type, content, props } = block;
-        
-        // Extract text content
-        const textContent = (content && Array.isArray(content) ? content : []).map((item: any) => item.text || '').join(' ') || '';
-        
-        switch (type) {
-          case 'heading':
-            return `# ${textContent}`;
-          case 'paragraph':
-            return textContent;
-          case 'bulletListItem':
-            return `• ${textContent}`;
-          case 'numberedListItem':
-            return `${props?.index || 1}. ${textContent}`;
-          case 'quote':
-            return `> ${textContent}`;
-          case 'image':
-            return `[IMAGE: ${textContent || 'Image'}]`;
-          case 'video':
-            return `[VIDEO: ${textContent || 'Video'}]`;
-          default:
-            return textContent;
-        }
-      }).filter(text => text.trim().length > 0).join('\n\n');
+      // Keep the first 80% and last 20% to preserve structure
+      const preserveLength = Math.floor(contentString.length * 0.8);
+      const endLength = Math.floor(contentString.length * 0.2);
       
-      contentString = simplifiedContent;
-      console.log(`Simplified content length: ${contentString.length} characters`);
+      contentString = contentString.substring(0, preserveLength) + 
+                     '\n\n[Content continues...]\n\n' + 
+                     contentString.substring(contentString.length - endLength);
+      
+      console.log(`Optimized content length: ${contentString.length} characters (preserved structure)`);
     }
     
-    // Final truncation if still too long
-    const maxContentLength = 2000; // Very conservative limit
+    // Increased limit for better content preservation
+    const maxContentLength = 15000; // Increased from 8000 to 15000
     if (contentString.length > maxContentLength) {
-      console.log(`Content too large (${contentString.length} chars), truncating...`);
-      contentString = contentString.substring(0, maxContentLength) + '...';
+      console.log(`Content very large (${contentString.length} chars), truncating to ${maxContentLength}...`);
+      contentString = contentString.substring(0, maxContentLength) + '\n\n[Content continues...]';
     }
     
     // Helper functions for cleaner prompt organization
@@ -645,6 +672,13 @@ Generate ONLY the HTML file with embedded CSS. No explanations or markdown.`;
 CONTENT TO TRANSFORM:
 ${enhancedContent || contentString}
 
+🚨 CRITICAL CONTENT INSTRUCTION:
+- Use ALL the content provided above - do not skip or omit any sections
+- Include every paragraph, heading, list item, and section from the original content
+- If the content mentions "[Content continues...]", this indicates there is more content that should be represented
+- Create a comprehensive website that reflects the full scope and depth of the original document
+- Do not summarize or condense the content - preserve the full detail and structure
+
 ${contentAnalysis ? `
 🎯 PROACTIVE CONTENT ANALYSIS:
 - Content Type: ${contentAnalysis.contentType}
@@ -834,11 +868,13 @@ ${imageData.length > 0 ? `
 
     console.log('Enhanced prompt length:', (systemPrompt + userPrompt).length, 'characters');
     console.log('Content length:', contentString.length, 'characters');
+    console.log('📄 Content preview (first 500 chars):', contentString.substring(0, 500));
+    console.log('📄 Content preview (last 500 chars):', contentString.substring(Math.max(0, contentString.length - 500)));
     
     try {
       const response = await anthropic.messages.create({
         model: "claude-3-5-sonnet-20241022",
-        max_tokens: 8000, // Increased for more detailed output
+        max_tokens: 12000, // Increased for larger content and more detailed output
         temperature: 0.3, // Lower for more consistent, professional output
         messages: [
           {
